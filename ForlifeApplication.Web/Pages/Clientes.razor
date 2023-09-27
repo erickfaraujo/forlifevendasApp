@@ -1,0 +1,72 @@
+﻿@page "/clientes"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+
+<div class="maindiv">
+    <div class="buscaClientediv">
+        <h1>Clientes</h1>
+        <form>
+            <label for="nomeCliente">Nome: </label>
+            <input type="text" @bind="nomeClienteBusca">
+            <br>
+            <label for="telefone">Telefone: </label>
+            <input type="text" @bind="telefoneClienteBusca">
+            <br>
+            <label for="dropLocais">Local: </label>
+            <select @bind="localClienteBusca">
+                <option value="localOne">Local de Testes</option>
+                <option value="localTwo">Local de Vendas</option>
+            </select>
+            <br>
+            <button type="submit" @* @onclick="@OnInitializedAsync" *@>Buscar Clientes</button>
+        </form>
+    </div>
+    <NavLink href="cadastroCliente" aria-hidden="true">
+        <button id="novoCliente">Novo Cliente</button>
+    </NavLink>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Local</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    @if (clientes == null)
+    {
+        <tr>Carregando clientes...</tr>
+    }
+    else
+    {
+        <tbody>
+            @foreach (var cliente in clientes.Clientes)
+            {
+                <tr>
+                    <td>@cliente.Nome</td>
+                    <td>@cliente.Telefone</td>
+                    <td>@cliente.Email</td>
+                    <td>@cliente.NomeLocal</td>
+                    <td><button><span class="oi oi-pencil" id="editar" /></button></td>
+                </tr>
+            }
+        </tbody>
+    }
+
+</table>
+
+@code {
+    private ClienteResponse clientes;
+    public string nomeClienteBusca { get; set; }
+    public string telefoneClienteBusca { get; set; }
+    public string localClienteBusca { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
+    }
+}

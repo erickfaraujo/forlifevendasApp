@@ -1,0 +1,73 @@
+﻿@page "/cadastroCliente"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="maindiv">
+    <h1>Cadastrar Cliente</h1>
+    <div class="formCadastroCliente">
+        <EditForm Model="clienteRequest" OnSubmit="Enviar">
+            <DataAnnotationsValidator/>
+            <div>
+                <label for="nome">Nome: </label>
+                <InputText id="nome" @bind-Value="clienteRequest.Nome" />
+                <ValidationMessage For="(() => clienteRequest.Nome)" />
+            </div>
+
+            <div>
+                <label for="telefone">Telefone: </label>
+                <InputText id="telefone" @bind-Value="clienteRequest.Telefone" />
+            </div>
+
+            <div>
+                <label for="email">Email: </label>
+                <InputText id="email" @bind-Value="clienteRequest.Email" />
+            </div>
+
+            <div>
+                <label for="dtNascimento">Data de Nascimento: </label>
+                <InputText id="dtNascimento" @bind-Value="clienteRequest.Dtnascimento" />
+            </div>
+
+            <div>
+                <label for="local">Local: </label>
+                <InputSelect id="local" @bind-Value="clienteRequest.IdlocalVenda">
+                    <option value=""> Selecione um local</option>
+                    @foreach(var local in locais.LocaisVenda)
+                    {
+                        <option value="@local.IdLocal">@local.Descricao</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <button type="submit">Cadastrar</button>
+
+            <NavLink href="clientes">
+                <button type="button">Cancelar</button>
+            </NavLink>
+    
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private PostClienteRequest clienteRequest { get; set; } = new();
+    private GetAllLocaisVendaResponse locais;
+
+    protected override void OnInitialized()
+    => locais = ForLifeVendasApi.GetLocaisVenda().Result;
+
+
+    private async void Enviar()
+    {
+        var response = await ForLifeVendasApi.PostCliente(clienteRequest);
+
+        if (!string.IsNullOrEmpty(response.Id))
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Cliente cadastrado com sucesso!");
+            NavManager.NavigateTo("/clientes");
+        }
+    }
+
+}
