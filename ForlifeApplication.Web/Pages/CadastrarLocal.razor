@@ -1,0 +1,46 @@
+﻿@page "/cadastroLocal"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="maindiv">
+    <h1>Cadastrar novo local</h1>
+    <div class="cadastrarLocaisdiv">
+        <EditForm Model="localRequest" OnSubmit="CadastrarLocaVenda">
+            <DataAnnotationsValidator />
+            <div>
+                <label for="nomeCliente">Local: </label>
+                <InputText id="descricao" @bind-Value="localRequest.Descricao" />
+            </div>
+
+            <div>
+                <label for="telefone">Endereço: </label>
+                <InputText id="endereco" @bind-Value="localRequest.Endereco" />
+            </div>
+            <div>
+                <label for="telefone">Referência: </label>
+                <InputText id="referencia" @bind-Value="localRequest.Referencia" />
+            </div>
+
+            <button type="submit">Cadastrar</button>
+
+            <NavLink href="locais">
+                <button type="button">Cancelar</button>
+            </NavLink>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    public PostLocalRequest localRequest { get; set; } = new();
+
+    protected async Task CadastrarLocaVenda()
+    {
+        var response = await ForLifeVendasApi.PostLocal(localRequest);
+
+        if(!string.IsNullOrEmpty(response.Id))
+            await JsRuntime.InvokeVoidAsync("alert", "Local cadastrado com sucesso!");
+    }
+}

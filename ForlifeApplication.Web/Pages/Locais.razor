@@ -1,0 +1,80 @@
+﻿@page "/locais"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+<div class="maindiv">
+    <div class="buscaLocaldiv">
+        <h1>Locais de Venda</h1>
+        <form>
+            <div>
+                <label for="nomeCliente">Local: </label>
+                <input type="text" @bind="descLocalBusca">
+            </div>
+            <div>
+                <label for="telefone">Endereço: </label>
+                <input type="text" @bind="enderecoLocalBusca">
+            </div>
+        </form>
+        <button @onclick="BuscarLocais">Buscar Locais</button>
+    </div>
+    <NavLink href="cadastroLocal" aria-hidden="true">
+        <button id="novoLocal">Novo Local</button>
+    </NavLink>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Local</th>
+            <th>Endereço</th>
+            <th>Referência</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    @if (locais == null)
+    {
+        <tr>Nenhum local encontrado, utilize o campo de pesquisa acima</tr>
+    }
+    else
+    {
+        <tbody>
+            @if (locais.LocaisVenda is not null)
+            {
+                @foreach (var local in locais.LocaisVenda)
+                {
+                    <tr>
+                        <td>@local.Descricao</td>
+                        <td>@local.Endereco</td>
+                        <td>@local.Referencia</td>
+                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
+                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>Nenhum local encontrado, utilize o campo de pesquisa acima</tr>
+            }
+        </tbody>
+    }
+
+</table>
+
+@code {
+    private ClienteResponse clientes;
+    public string descLocalBusca { get; set; }
+    public string enderecoLocalBusca { get; set; }
+    public string localClienteBusca { get; set; }
+    private GetAllLocaisVendaResponse locais;
+
+    protected override async Task OnInitializedAsync()
+        => locais = await ForLifeVendasApi.GetLocaisVenda();
+
+    protected async Task BuscarLocais()
+    {
+        locais = null;
+        locais = await ForLifeVendasApi.GetLocaisVenda();
+    }
+
+}

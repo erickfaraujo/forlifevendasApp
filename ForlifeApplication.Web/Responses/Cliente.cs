@@ -7,8 +7,6 @@ public record ClienteResponse(
     [property: JsonPropertyName("clientesRetornados")] int ClientesRetornados,
     [property: JsonPropertyName("clientes")] List<Cliente> Clientes);
 
-public record GetClienteByIdResponse([property: JsonPropertyName("cliente")] Cliente Cliente);
-
 public record Cliente(
     [property: JsonPropertyName("pk")] string Pk,
     [property: JsonPropertyName("sk")] string Sk,
@@ -18,5 +16,3 @@ public record Cliente(
     [property: JsonPropertyName("dtnascimento")] string Dtnascimento,
     [property: JsonPropertyName("idlocal")] string Idlocal,
     [property: JsonPropertyName("nomeLocal")] string NomeLocal);
-
-

@@ -14,4 +14,7 @@ public interface IForlifeVendasApi
 
     [Get("/LocalVenda")]
     Task<GetAllLocaisVendaResponse> GetLocaisVenda();
+
+    [Post("/LocalVenda")]
+    Task<PostLocalResponse> PostLocal(PostLocalRequest request);
 }

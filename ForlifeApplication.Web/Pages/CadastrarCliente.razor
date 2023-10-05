@@ -56,8 +56,7 @@
     private GetAllLocaisVendaResponse locais;
 
     protected override void OnInitialized()
-    => locais = ForLifeVendasApi.GetLocaisVenda().Result;
-
+        => locais = ForLifeVendasApi.GetLocaisVenda().Result;
 
     private async void Enviar()
     {

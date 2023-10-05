@@ -1,25 +1,37 @@
 ﻿@page "/clientes"
 
 @inject IForlifeVendasApi ForLifeVendasApi
-
 <div class="maindiv">
     <div class="buscaClientediv">
         <h1>Clientes</h1>
         <form>
-            <label for="nomeCliente">Nome: </label>
-            <input type="text" @bind="nomeClienteBusca">
-            <br>
-            <label for="telefone">Telefone: </label>
-            <input type="text" @bind="telefoneClienteBusca">
-            <br>
-            <label for="dropLocais">Local: </label>
-            <select @bind="localClienteBusca">
-                <option value="localOne">Local de Testes</option>
-                <option value="localTwo">Local de Vendas</option>
-            </select>
-            <br>
-            <button type="submit" @* @onclick="@OnInitializedAsync" *@>Buscar Clientes</button>
+            <div>
+                <label for="nomeCliente">Nome: </label>
+                <input type="text" @bind="nomeClienteBusca">
+            </div>
+            <div>
+                <label for="telefone">Telefone: </label>
+                <input type="text" @bind="telefoneClienteBusca">
+            </div>
+            <div>
+                <label for="dropLocais">Local: </label>
+                <select @bind="localClienteBusca">
+                    <option value="">Todos</option>
+                    @if (locais is not null)
+                    {
+                        foreach (var local in locais.LocaisVenda)
+                        {
+                            <option value="@local.IdLocal">@local.Descricao</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value=""></option>
+                    }
+                </select>
+            </div>
         </form>
+        <button @onclick="BuscarClientes">Buscar Clientes</button>
     </div>
     <NavLink href="cadastroCliente" aria-hidden="true">
         <button id="novoCliente">Novo Cliente</button>
@@ -39,20 +51,27 @@
 
     @if (clientes == null)
     {
-        <tr>Carregando clientes...</tr>
+        <tr>Nenhum cliente encontrado, utilize o campo de pesquisa acima</tr>
     }
     else
     {
         <tbody>
-            @foreach (var cliente in clientes.Clientes)
+            @if (clientes.Clientes is not null)
             {
-                <tr>
-                    <td>@cliente.Nome</td>
-                    <td>@cliente.Telefone</td>
-                    <td>@cliente.Email</td>
-                    <td>@cliente.NomeLocal</td>
-                    <td><button><span class="oi oi-pencil" id="editar" /></button></td>
-                </tr>
+                @foreach (var cliente in clientes.Clientes)
+                {
+                    <tr>
+                        <td>@cliente.Nome</td>
+                        <td>@cliente.Telefone</td>
+                        <td>@cliente.Email</td>
+                        <td>@cliente.NomeLocal</td>
+                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>Nenhum cliente encontrado, utilize o campo de pesquisa acima</tr>
             }
         </tbody>
     }
@@ -64,9 +83,15 @@
     public string nomeClienteBusca { get; set; }
     public string telefoneClienteBusca { get; set; }
     public string localClienteBusca { get; set; }
+    private GetAllLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
+        => locais = await ForLifeVendasApi.GetLocaisVenda();
+
+    protected async Task BuscarClientes()
     {
+        clientes = null;
         clientes = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
     }
+
 }
