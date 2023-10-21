@@ -2,7 +2,7 @@
 
 namespace ForlifeApplication.Web.Responses;
 
-public record ClienteResponse(
+public record GetClientesResponse(
     [property: JsonPropertyName("totalClientes")] int TotalClientes,
     [property: JsonPropertyName("clientesRetornados")] int ClientesRetornados,
     [property: JsonPropertyName("clientes")] List<Cliente> Clientes);

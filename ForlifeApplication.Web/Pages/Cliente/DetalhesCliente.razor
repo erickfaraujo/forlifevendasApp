@@ -1,0 +1,114 @@
+﻿@page "/detalhesCliente/{idCliente}"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+<div class="maindiv">
+    <div class="buscaClientediv">
+        <h1>Detalhes do Cliente</h1>
+        <h2>@cliente.Nome</h2>
+        <label>Email: @cliente.Email</label>
+        <label>Telefone: @cliente.Telefone</label>
+        <label>Local: @cliente.NomeLocal</label>
+    </div>
+</div>
+
+<div>
+    <button @onclick=NavigateToRegistrar>Registrar Pedido</button>
+</div>
+
+<h3>Últimas Compras</h3>
+@if (pedidosPagos)
+{
+    <button @onclick=FiltrarPedidos>Exibir apenas pedidos pendentes</button>
+}
+else
+{
+    <button @onclick=FiltrarPedidos>Exbirir todos os pedidos</button>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Valor</th>
+            <th>Valor Pago</th>
+            <th>Status</th>
+            <th>Obervações</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    @if (pedidos == null)
+    {
+        <tr>Cliente não possui pedidos cadatrados</tr>
+    }
+    else
+    {
+        <tbody>
+            @foreach (var pedido in pedidos.Pedidos)
+            {
+                <tr>
+                    <td>@pedido.DataPedido</td>
+                    <td>@pedido.Valor</td>
+                    <td>@pedido.TotalPagamento</td>
+                    <td>@pedido.Status</td>
+                    <td>@pedido.Observacoes</td>
+                    <td>
+                        @if (pedido.Status is "PENDENTE")
+                        {
+                            <a href="registrarPagamento/@idCliente/@pedido.IdPedido" aria-hidden="true">
+                                <buttton>Registrar Pagamento</buttton>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    }
+
+</table>
+
+@code {
+    [Parameter]
+    public string idCliente { get; set; }
+    private Cliente cliente;
+    private GetPedidosClienteResponse pedidos;
+    private bool pedidosPagos = true;
+    private string registrarPedidoPath = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseCliente = ForLifeVendasApi.GetClienteById(idCliente).Result;
+
+        if (responseCliente.IsSuccessStatusCode)
+            cliente = responseCliente.Content.cliente;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do cliente. Erro: {responseCliente.Error.Message}");
+
+        await GetPedidosCliente();
+    }
+
+    protected async Task FiltrarPedidos()
+    {
+        pedidosPagos = !pedidosPagos;
+        await GetPedidosCliente();
+    }
+
+    protected async Task GetPedidosCliente()
+    {
+        var responsePedidos = await ForLifeVendasApi.GetPedidosCliente(idCliente, pedidosPagos);
+
+        if (responsePedidos.IsSuccessStatusCode)
+        {
+            if (responsePedidos.Content.Pedidos is not null)
+                pedidos = responsePedidos.Content;
+            else
+                pedidos = null;
+        }
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar pedidos do cliente. Erro: {responsePedidos.Error.Message}");
+    }
+
+    protected void NavigateToRegistrar()
+        => NavManager.NavigateTo($"/inserirVenda/{idCliente}/{cliente.Nome}");
+}

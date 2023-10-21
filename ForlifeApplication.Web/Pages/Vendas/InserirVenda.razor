@@ -1,0 +1,90 @@
+﻿@page "/inserirVenda/{idCliente}/{nomeCliente}"
+@using System.Globalization;
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="maindiv">
+    <h1>Inserir Venda</h1>
+    <div class="formCadastroVenda">
+        <EditForm Model="pedidoRequest" OnSubmit="Enviar">
+            <DataAnnotationsValidator/>
+            <div>
+                <label for="cliente">Cliente: </label>
+                <InputSelect id="cliente" @bind-Value="pedidoRequest.IdCliente">
+                    <option value="@idCliente">@nomeCliente</option>
+                    @foreach(var cliente in clientes.Clientes)
+                    {
+                        <option value="@cliente.Pk">@cliente.Nome</option>
+                    }
+                </InputSelect>
+            </div>
+
+             <div>
+                <label for="vlPedido">Valor do pedido: </label>
+                <InputNumber id="vlPedido" @bind-Value="pedidoRequest.ValorTotal" @bind-Value:format="F2" />
+            </div>
+
+            <div>
+                <label for="vlPago">Valor Pago: </label>
+                <InputNumber id="vlPago" @bind-Value="pedidoRequest.ValorPago" />
+            </div>
+
+            <div>
+                <label for="vlPago">Observações: </label>
+                <InputTextArea id="obs" @bind-Value="pedidoRequest.Observacoes" />
+            </div>
+
+            <button type="submit">Inserir Venda</button>
+
+            <NavLink href="">
+                <button type="button">Cancelar</button>
+            </NavLink>
+    
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? idCliente { get; set; }
+    [Parameter]
+    public string? nomeCliente { get; set; }
+
+    private PostPedidoRequest pedidoRequest { get; set; } = new();
+    private decimal numberVariable { get; set; }
+    private GetClientesResponse clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // idCliente = "";
+        // nomeCliente = "Selecione um cliente";
+
+        var response = ForLifeVendasApi.GetClientes(null, null, null).Result;
+
+        if (response.IsSuccessStatusCode)
+            clientes = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de clientes. Erro: {response.Error.Message}");
+    }
+
+    private async void Enviar()
+    {
+        pedidoRequest.IdCliente = idCliente;
+        var response = await ForLifeVendasApi.PostPedido(pedidoRequest);
+
+        if(!response.IsSuccessStatusCode)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao cadastrar a venda. Erro: {response.Error.Message}");
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(response.Content.Id))
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Pedido cadastrado com sucesso!");
+            NavManager.NavigateTo("/clientes"); /* ????????? */
+        }
+    }
+
+}

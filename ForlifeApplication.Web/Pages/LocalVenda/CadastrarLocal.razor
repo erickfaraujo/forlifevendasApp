@@ -40,7 +40,12 @@
     {
         var response = await ForLifeVendasApi.PostLocal(localRequest);
 
-        if(!string.IsNullOrEmpty(response.Id))
-            await JsRuntime.InvokeVoidAsync("alert", "Local cadastrado com sucesso!");
+        if (!response.IsSuccessStatusCode)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao cadastrar local de venda. Erro: {response.Error.Message}");
+            return;
+        }
+
+        await JsRuntime.InvokeVoidAsync("alert", "Local cadastrado com sucesso!");
     }
 }

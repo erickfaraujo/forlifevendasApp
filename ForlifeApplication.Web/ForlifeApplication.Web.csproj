@@ -58,10 +58,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Resources\Images\loadingSpinner.gif" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Include="Pages\Index.razor" />
       <None Include="Shared\MainLayout.razor" />
       <None Include="Shared\NavMenu.razor" />
-      <None Include="Shared\SurveyPrompt.razor" />
     </ItemGroup>
 
     <ItemGroup>
@@ -72,6 +75,10 @@
 
     <ItemGroup>
       <Folder Include="Resources\Images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiImage Include="wwwroot\loadingspinner.gif" />
     </ItemGroup>
 
 </Project>

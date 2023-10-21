@@ -1,6 +1,7 @@
 ﻿@page "/clientes"
 
 @inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
 <div class="maindiv">
     <div class="buscaClientediv">
         <h1>Clientes</h1>
@@ -37,61 +38,57 @@
         <button id="novoCliente">Novo Cliente</button>
     </NavLink>
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Telefone</th>
-            <th>Email</th>
-            <th>Local</th>
-            <th></th>
-        </tr>
-    </thead>
-
+<div>
     @if (clientes == null)
     {
-        <tr>Nenhum cliente encontrado, utilize o campo de pesquisa acima</tr>
+        <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
     }
     else
     {
-        <tbody>
-            @if (clientes.Clientes is not null)
-            {
-                @foreach (var cliente in clientes.Clientes)
-                {
-                    <tr>
-                        <td>@cliente.Nome</td>
-                        <td>@cliente.Telefone</td>
-                        <td>@cliente.Email</td>
-                        <td>@cliente.NomeLocal</td>
-                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <tr>Nenhum cliente encontrado, utilize o campo de pesquisa acima</tr>
-            }
-        </tbody>
+        @if (clientes.Clientes is not null)
+        {
+            <ExibirClientes Clientes="@clientes" />
+        }
+        else
+        {
+            <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
+        }
     }
-
-</table>
+</div>
 
 @code {
-    private ClienteResponse clientes;
+    private GetClientesResponse clientes;
     public string nomeClienteBusca { get; set; }
     public string telefoneClienteBusca { get; set; }
     public string localClienteBusca { get; set; }
     private GetAllLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
-        => locais = await ForLifeVendasApi.GetLocaisVenda();
+    {
+        await BuscarLocais();
+
+        await BuscarClientes();
+    }
+
+    protected async Task BuscarLocais()
+    {
+        var response = await ForLifeVendasApi.GetLocaisVenda();
+
+        if (response.IsSuccessStatusCode)
+            locais = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+    }
 
     protected async Task BuscarClientes()
     {
         clientes = null;
-        clientes = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
+        var response = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
+
+        if (response.IsSuccessStatusCode)
+            clientes = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar clientes. Erro: {response.Error.Message}");
     }
 
 }

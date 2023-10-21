@@ -1,6 +1,7 @@
 ﻿@page "/locais"
 
 @inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
 <div class="maindiv">
     <div class="buscaLocaldiv">
         <h1>Locais de Venda</h1>
@@ -62,19 +63,31 @@
 </table>
 
 @code {
-    private ClienteResponse clientes;
     public string descLocalBusca { get; set; }
     public string enderecoLocalBusca { get; set; }
     public string localClienteBusca { get; set; }
     private GetAllLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
-        => locais = await ForLifeVendasApi.GetLocaisVenda();
+    {
+        var response = await ForLifeVendasApi.GetLocaisVenda();
 
+        if (response.IsSuccessStatusCode)
+            locais = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+    }
     protected async Task BuscarLocais()
     {
         locais = null;
-        locais = await ForLifeVendasApi.GetLocaisVenda();
+        var response = await ForLifeVendasApi.GetLocaisVenda();
+
+        if (response.IsSuccessStatusCode)
+            locais = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao lista de locais. Erro: {response.Error.Message}");
+
+        
     }
 
 }

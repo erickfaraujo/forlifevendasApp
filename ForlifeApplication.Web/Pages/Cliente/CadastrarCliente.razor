@@ -55,14 +55,26 @@
     private PostClienteRequest clienteRequest { get; set; } = new();
     private GetAllLocaisVendaResponse locais;
 
-    protected override void OnInitialized()
-        => locais = ForLifeVendasApi.GetLocaisVenda().Result;
+    protected override async Task OnInitializedAsync()
+    {
+        var response = ForLifeVendasApi.GetLocaisVenda().Result;
 
-    private async void Enviar()
+        if (response.IsSuccessStatusCode)
+            locais = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+    }
+
+    private async Task Enviar()
     {
         var response = await ForLifeVendasApi.PostCliente(clienteRequest);
 
-        if (!string.IsNullOrEmpty(response.Id))
+        if (!response.IsSuccessStatusCode)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao cadastrar cliente. Erro: {response.Error.Message}");
+            return;
+        }
+        else
         {
             await JsRuntime.InvokeVoidAsync("alert", "Cliente cadastrado com sucesso!");
             NavManager.NavigateTo("/clientes");

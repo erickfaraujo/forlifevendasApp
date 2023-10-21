@@ -1,0 +1,55 @@
+﻿@page "/registrarPagamento/{idCliente}/{idPedido}"
+@using System.Globalization;
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="maindiv">
+    <h1>Registrar Pagamento</h1>
+    <div class="formRegistroPagamento">
+        <EditForm Model="pagamentoRequest" OnSubmit="Enviar">          
+            <div>
+                <label for="dtPagamento">Data do Pagamento: </label>
+                <InputDate id="dtPagamento" @bind-Value="pagamentoRequest.Data"/>
+            </div>
+            
+             <div>
+                <label for="vlPedido">Valor do Pagamento: </label>
+                <InputNumber id="vlPedido" @bind-Value="pagamentoRequest.Valor" @bind-Value:format="F2" />
+            </div>
+
+            <button type="submit">Registrar Pagamento</button>
+
+            <NavLink href="/detalhesCliente">
+                <button type="button">Cancelar</button>
+            </NavLink>
+    
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string idPedido { get; set; }
+    [Parameter]
+    public string idCliente { get; set; }
+
+    private PutPagamentoPedidoRequest pagamentoRequest { get; set; } = new();
+
+    private async void Enviar()
+    {
+        pagamentoRequest.IdPedido = idPedido;
+        var response = await ForLifeVendasApi.PutPagamentoPedido(pagamentoRequest);
+
+        if(!response.IsSuccessStatusCode)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao registrar pagamento para a venda. Erro: {response.Error.Message}");
+            return;
+        }
+
+        await JsRuntime.InvokeVoidAsync("alert", "Pedido atualizado com sucesso!");
+        NavManager.NavigateTo($"/detalhesCliente/{idCliente}"); /* ????????? */
+        }
+    }
+}
