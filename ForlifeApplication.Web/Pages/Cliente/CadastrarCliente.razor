@@ -27,7 +27,7 @@
 
             <div>
                 <label for="dtNascimento">Data de Nascimento: </label>
-                <InputText id="dtNascimento" @bind-Value="clienteRequest.Dtnascimento" />
+                <InputText id="dtNascimento" @bind-Value="dateNasc" />
             </div>
 
             <div>
@@ -53,11 +53,12 @@
 
 @code {
     private PostClienteRequest clienteRequest { get; set; } = new();
-    private GetAllLocaisVendaResponse locais;
+    private GetLocaisVendaResponse locais;
+    private string dateNasc { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var response = ForLifeVendasApi.GetLocaisVenda().Result;
+        var response = ForLifeVendasApi.GetLocaisVenda(null, null).Result;
 
         if (response.IsSuccessStatusCode)
             locais = response.Content;
@@ -67,6 +68,7 @@
 
     private async Task Enviar()
     {
+        clienteRequest.DataNascimento = DateTime.Parse(dateNasc);
         var response = await ForLifeVendasApi.PostCliente(clienteRequest);
 
         if (!response.IsSuccessStatusCode)

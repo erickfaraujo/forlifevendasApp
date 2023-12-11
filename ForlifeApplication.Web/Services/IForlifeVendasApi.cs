@@ -12,6 +12,9 @@ public interface IForlifeVendasApi
     [Get("/Clientes")]
     Task<ApiResponse<GetClientesResponse>> GetClientes(string nome, string telefone, string idLocal);
 
+    [Get("/Clientes/clientesPorLoja/{idLocal}")]
+    Task<ApiResponse<GetClientesResponse>> GetClientesByLocal(string idLocal);
+
     [Post("/Clientes")]
     Task<ApiResponse<PostClienteResponse>> PostCliente(PostClienteRequest request);
 
@@ -19,10 +22,13 @@ public interface IForlifeVendasApi
     Task<ApiResponse<object>> PutCliente(PutClienteRequest request);
 
     [Get("/LocalVenda")]
-    Task<ApiResponse<GetAllLocaisVendaResponse>> GetLocaisVenda();
+    Task<ApiResponse<GetLocaisVendaResponse>> GetLocaisVenda(string descricao, string endereco);
 
     [Post("/LocalVenda")]
     Task<ApiResponse<PostLocalResponse>> PostLocal(PostLocalRequest request);
+
+    [Get("/Pedidos")]
+    Task<ApiResponse<GetPedidosClienteResponse>> GetPedidos(GetPedidosRequest request);
 
     [Get("/Pedidos/cliente/{idCliente}")]
     Task<ApiResponse<GetPedidosClienteResponse>> GetPedidosCliente(string idCliente, bool pagos);

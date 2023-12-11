@@ -40,7 +40,7 @@
     else
     {
         <tbody>
-            @if (locais.LocaisVenda is not null)
+            @if (locais is not null)
             {
                 @foreach (var local in locais.LocaisVenda)
                 {
@@ -48,8 +48,13 @@
                         <td>@local.Descricao</td>
                         <td>@local.Endereco</td>
                         <td>@local.Referencia</td>
-                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
-                        <td><button><span class="oi oi-pencil" id="editar" /></button></td>
+                        <td>
+                            <div>
+                                <a href="/detalhesLocal/@local.IdLocal/@local.Descricao">
+                                    <span class="oi oi-eye" id="visualizarLocal" />
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 }
             }
@@ -65,12 +70,11 @@
 @code {
     public string descLocalBusca { get; set; }
     public string enderecoLocalBusca { get; set; }
-    public string localClienteBusca { get; set; }
-    private GetAllLocaisVendaResponse locais;
+    private GetLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await ForLifeVendasApi.GetLocaisVenda();
+        var response = await ForLifeVendasApi.GetLocaisVenda(descLocalBusca, enderecoLocalBusca);
 
         if (response.IsSuccessStatusCode)
             locais = response.Content;
@@ -80,7 +84,7 @@
     protected async Task BuscarLocais()
     {
         locais = null;
-        var response = await ForLifeVendasApi.GetLocaisVenda();
+        var response = await ForLifeVendasApi.GetLocaisVenda(descLocalBusca, enderecoLocalBusca);
 
         if (response.IsSuccessStatusCode)
             locais = response.Content;

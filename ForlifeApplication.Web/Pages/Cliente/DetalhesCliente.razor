@@ -1,4 +1,5 @@
 ﻿@page "/detalhesCliente/{idCliente}"
+@using System.Net;
 
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
@@ -48,15 +49,16 @@ else
             @foreach (var pedido in pedidos.Pedidos)
             {
                 <tr>
-                    <td>@pedido.DataPedido</td>
-                    <td>@pedido.Valor</td>
-                    <td>@pedido.TotalPagamento</td>
+                    <td>@pedido.DataPedido.ToShortDateString()</td>
+                    <td>R$@pedido.Valor</td>
+                    <td>R$@pedido.TotalPagamento</td>
                     <td>@pedido.Status</td>
                     <td>@pedido.Observacoes</td>
                     <td>
                         @if (pedido.Status is "PENDENTE")
                         {
-                            <a href="registrarPagamento/@idCliente/@pedido.IdPedido" aria-hidden="true">
+                            pedido.SaldoDevedor = (pedido.Valor - pedido.TotalPagamento).ToString();
+                            <a href="registrarPagamento/@idCliente/@pedido.IdPedido/@pedido.SaldoDevedor" aria-hidden="true">
                                 <buttton>Registrar Pagamento</buttton>
                             </a>
                         }
@@ -74,7 +76,6 @@ else
     private Cliente cliente;
     private GetPedidosClienteResponse pedidos;
     private bool pedidosPagos = true;
-    private string registrarPedidoPath = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,6 +106,8 @@ else
             else
                 pedidos = null;
         }
+        else if(responsePedidos.StatusCode is HttpStatusCode.NotFound) 
+            pedidos = null;
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar pedidos do cliente. Erro: {responsePedidos.Error.Message}");
     }

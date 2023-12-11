@@ -67,16 +67,19 @@
     public string localCliente { get; set; }
 
     private PutClienteRequest atualizaClienteRequest { get; set; } = new();
-    private GetAllLocaisVendaResponse locais;
+    private GetLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = ForLifeVendasApi.GetLocaisVenda().Result;
+        var response = ForLifeVendasApi.GetLocaisVenda(null, null).Result;
 
         if (response.IsSuccessStatusCode)
             locais = response.Content;
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+
+        var date = DateTime.Parse(dtNascCliente);
+        dtNascCliente = date.ToString("dd/MM/yyyy");
     }
 
     private async void Enviar()
@@ -85,7 +88,7 @@
         atualizaClienteRequest.Nome = nomeCliente;
         atualizaClienteRequest.Telefone = telefoneCliente;
         atualizaClienteRequest.Email = emailCliente;
-        atualizaClienteRequest.Dtnascimento = dtNascCliente;
+        atualizaClienteRequest.DataNascimento = DateTime.Parse(dtNascCliente);
         atualizaClienteRequest.IdlocalVenda = idLocalCliente;
         var response = await ForLifeVendasApi.PutCliente(atualizaClienteRequest);
 

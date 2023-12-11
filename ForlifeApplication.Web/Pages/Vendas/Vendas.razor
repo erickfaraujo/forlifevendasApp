@@ -1,0 +1,103 @@
+﻿@page "/vendas"
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+<div class="maindiv">
+    <div class="buscaVendasdiv">
+        <h1>Vendas</h1>
+        <form>
+            <div class="form-group">
+                <label for="dataInicioPedido">Data Inicio: </label>
+                <input type="text" @bind="dataInicioPedidoBusca">
+            </div>
+            <div class="form-group">
+                <label for="dataInicioPedido">Data Final: </label>
+                <input type="text" @bind="dataFinalPedidoBusca">
+            </div>
+            <div class="form-group">
+                <label for="dropLocais">Local: </label>
+                <select @bind="localClienteBusca">
+                    <option value="">Todos</option>
+                    @if (locais is not null)
+                    {
+                        foreach (var local in locais.LocaisVenda)
+                        {
+                            <option value="@local.IdLocal">@local.Descricao</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value=""></option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dropStatus">Status de Pagamento:</label>
+                <select @bind="statusPagamento">
+                    <option>Ambos</option>
+                    <option value="PAGO">Pagos</option>
+                    <option value="PENDENTE">Pendentes</option>
+                </select>
+            </div>
+        </form>
+        <button @onclick="BuscarVendas">Buscar Vendas</button>
+    </div>
+</div>
+<div>
+    @if (vendas == null)
+    {
+        <p>@msgTable</p>
+    }
+    else
+    {
+        @if (vendas.Pedidos is not null)
+        {
+            <ExibirVendas Vendas="@vendas" />
+        }
+        else
+        {
+            <p>@msgTable</p>
+        }
+    }
+</div>
+
+@code {
+    private GetPedidosClienteResponse vendas;
+    public string dataInicioPedidoBusca { get; set; }
+    public string dataFinalPedidoBusca { get; set; }
+    public string localClienteBusca { get; set; }
+    public string statusPagamento { get; set; }
+    public string msgTable { get; set; } = "Utilize os campos de pesquisa acima";
+    private GetLocaisVendaResponse locais;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BuscarLocais();
+    }
+
+    protected async Task BuscarLocais()
+    {
+        var response = await ForLifeVendasApi.GetLocaisVenda(null, null);
+
+        if (response.IsSuccessStatusCode)
+            locais = response.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+    }
+
+    protected async Task BuscarVendas()
+    {
+        vendas = null;
+        statusPagamento = statusPagamento is "Ambos" ? null : statusPagamento;
+        var request = new GetPedidosRequest(dataInicioPedidoBusca, dataFinalPedidoBusca, statusPagamento, localClienteBusca);
+        var response = await ForLifeVendasApi.GetPedidos(request);
+
+        if (response.IsSuccessStatusCode)
+            vendas = response.Content;
+        else if (response.StatusCode is System.Net.HttpStatusCode.NotFound)
+            msgTable = "Nenhuma venda encontrada para os parâmeros informados";
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar vendas. Erro: {response.Error.Message}");
+    }
+
+}

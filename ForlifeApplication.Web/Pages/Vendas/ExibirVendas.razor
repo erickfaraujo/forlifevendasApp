@@ -1,0 +1,55 @@
+﻿<table class="table">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Local</th>
+            <th>Valor da Venda</th>
+            <th>Valor Pendente</th>
+            <th>Status</th>
+            <th>Visualizar Cliente</th>
+            <th>Registrar Pagamento</th>
+        </tr>
+    </thead>
+    @foreach (var venda in Vendas.Pedidos)
+    {
+        <tr>
+            <td>@venda.DataPedido.ToShortDateString()</td>
+            <td>@venda.InfosAdicionais.NomeCliente</td>
+            <td>@venda.InfosAdicionais.NomeLocal</td>
+            <td>R$ @venda.Valor</td>
+            <td>R$ @ValorPendente(venda.Valor, venda.TotalPagamento)</td>
+            <td>@venda.Status</td>
+            <td>
+                <div>
+                    <center>
+                        <a href="/detalhesCliente/@venda.Pk">
+                            <span class="oi oi-eye" id="visualizar" />
+                        </a>
+                    </center>
+                </div>
+            </td>
+            <td>
+                <div>
+                    @if (@ValorPendente(venda.Valor, venda.TotalPagamento) is > 0)
+                    {
+                        <center>
+                            <a href="registrarPagamento/@venda.Pk/@venda.IdPedido/@ValorPendente(venda.Valor, venda.TotalPagamento)" aria-hidden="true">
+                                <span class="oi oi-pencil" id="editar" />
+                            </a>
+                        </center>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+</table>
+
+@code {
+
+    [Parameter]
+    public GetPedidosClienteResponse Vendas { get; set; }
+
+    protected decimal ValorPendente(decimal ValorVenda, decimal ValorPago)
+        => ValorVenda - ValorPago;
+}

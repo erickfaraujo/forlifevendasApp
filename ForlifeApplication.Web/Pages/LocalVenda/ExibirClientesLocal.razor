@@ -1,0 +1,39 @@
+﻿<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    @foreach (var cliente in Clientes.Clientes)
+    {
+        <tr>
+            <td>@cliente.Nome</td>
+            <td>@cliente.Telefone</td>
+            <td>@cliente.Email</td>
+            <td>
+                <div>
+                    <a href="/editarCliente/@cliente.Pk/@cliente.Nome/@cliente.Telefone/@cliente.Email/@cliente.Dtnascimento/@cliente.Idlocal/@cliente.NomeLocal">
+                        <span class="oi oi-pencil" id="editar" />
+                    </a>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <a href="/detalhesCliente/@cliente.Pk">
+                        <span class="oi oi-eye" id="visualizar" />
+                    </a>
+                </div>
+            </td>
+        </tr>
+    }
+</table>
+
+@code {
+
+    [Parameter]
+    public GetClientesResponse Clientes { get; set; }
+}

@@ -1,0 +1,68 @@
+﻿@page "/detalhesLocal/{idLocal}/{nomeLocal}"
+@using System.Net;
+@using ForlifeApplication.Web.Pages.Cliente
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+<div class="maindiv">
+    <div class="buscaClientediv">
+        <h1>Detalhes do Local</h1>
+        <h2>@nomeLocal</h2>
+    </div>
+</div>
+
+<div>
+    @if (clientes == null)
+    {
+        <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
+    }
+    else
+    {
+        @if (clientes is not null)
+        {
+            <ExibirClientesLocal Clientes="@clientes" />
+        }
+        else
+        {
+            <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string idLocal { get; set; }
+    [Parameter]
+    public string nomeLocal { get; set; }
+    private GetClientesResponse clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseCliente = ForLifeVendasApi.GetClientesByLocal(idLocal).Result;
+
+        if (responseCliente.IsSuccessStatusCode)
+            clientes = responseCliente.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do local. Erro: {responseCliente.Error.Message}");
+
+        await GetClientes();
+    }
+
+    protected async Task GetClientes()
+    {
+        var responseClientes = await ForLifeVendasApi.GetClientesByLocal(idLocal);
+
+        if (responseClientes.IsSuccessStatusCode)
+        {
+            if (responseClientes.Content.Clientes is not null)
+                clientes = responseClientes.Content;
+            else
+                clientes = null;
+        }
+        else if(responseClientes.StatusCode is HttpStatusCode.NotFound) 
+            clientes = null;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar clientes. Erro: {responseClientes.Error.Message}");
+    }
+}

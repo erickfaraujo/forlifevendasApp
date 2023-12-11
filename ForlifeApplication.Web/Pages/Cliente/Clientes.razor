@@ -61,7 +61,7 @@
     public string nomeClienteBusca { get; set; }
     public string telefoneClienteBusca { get; set; }
     public string localClienteBusca { get; set; }
-    private GetAllLocaisVendaResponse locais;
+    private GetLocaisVendaResponse locais;
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,7 +72,7 @@
 
     protected async Task BuscarLocais()
     {
-        var response = await ForLifeVendasApi.GetLocaisVenda();
+        var response = await ForLifeVendasApi.GetLocaisVenda(null, null);
 
         if (response.IsSuccessStatusCode)
             locais = response.Content;

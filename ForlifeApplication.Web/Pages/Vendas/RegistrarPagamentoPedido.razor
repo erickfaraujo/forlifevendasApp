@@ -1,4 +1,4 @@
-﻿@page "/registrarPagamento/{idCliente}/{idPedido}"
+﻿@page "/registrarPagamento/{idCliente}/{idPedido}/{saldoDevedor}"
 @using System.Globalization;
 
 @inject IForlifeVendasApi ForLifeVendasApi
@@ -7,11 +7,14 @@
 
 <div class="maindiv">
     <h1>Registrar Pagamento</h1>
+    <div>
+        <label>Saldo devedor: R$ @saldoDevedor</label>
+    </div>
     <div class="formRegistroPagamento">
         <EditForm Model="pagamentoRequest" OnSubmit="Enviar">          
             <div>
                 <label for="dtPagamento">Data do Pagamento: </label>
-                <InputDate id="dtPagamento" @bind-Value="pagamentoRequest.Data"/>
+                <InputText id="dtPagamento" @bind-Value="dateNasc"/>
             </div>
             
              <div>
@@ -21,9 +24,9 @@
 
             <button type="submit">Registrar Pagamento</button>
 
-            <NavLink href="/detalhesCliente">
-                <button type="button">Cancelar</button>
-            </NavLink>
+            <div>
+                <button type="button" @onclick="NavigateToDetalhesCliente">Cancelar</button>
+            </div>
     
         </EditForm>
     </div>
@@ -34,12 +37,22 @@
     public string idPedido { get; set; }
     [Parameter]
     public string idCliente { get; set; }
+    [Parameter]
+    public string saldoDevedor { get; set; }
+    private string dateNasc { get; set; } = DateTime.Now.ToShortDateString();
 
     private PutPagamentoPedidoRequest pagamentoRequest { get; set; } = new();
 
     private async void Enviar()
     {
+        if (pagamentoRequest.Valor > Convert.ToDecimal(saldoDevedor))
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Insira um valor de até R$ {saldoDevedor}");
+            return;
+        }
+
         pagamentoRequest.IdPedido = idPedido;
+        pagamentoRequest.Data = DateTime.Parse(dateNasc);
         var response = await ForLifeVendasApi.PutPagamentoPedido(pagamentoRequest);
 
         if(!response.IsSuccessStatusCode)
@@ -49,7 +62,9 @@
         }
 
         await JsRuntime.InvokeVoidAsync("alert", "Pedido atualizado com sucesso!");
-        NavManager.NavigateTo($"/detalhesCliente/{idCliente}"); /* ????????? */
-        }
+        NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
     }
+
+    protected void NavigateToDetalhesCliente()
+        => NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
 }

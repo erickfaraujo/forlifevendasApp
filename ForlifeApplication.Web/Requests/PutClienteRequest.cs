@@ -10,7 +10,7 @@ public class PutClienteRequest
 
     public string Email { get; set; } = default!;
 
-    public string Dtnascimento { get; set; } = default!;
+    public DateTime DataNascimento { get; set; }
 
     public string IdlocalVenda { get; set; } = default!;
 };

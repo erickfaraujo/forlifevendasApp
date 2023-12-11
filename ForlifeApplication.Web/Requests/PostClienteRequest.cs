@@ -14,7 +14,7 @@ public class PostClienteRequest
     public string Email { get; set; } = default!;
 
     [Required(ErrorMessage = "Informar a data de nascimento")]
-    public string Dtnascimento { get; set; } = default!;
+    public DateTime DataNascimento { get; set; }
 
     [Required(ErrorMessage = "Informar o local da venda")]
     public string IdlocalVenda { get; set; } = default!;

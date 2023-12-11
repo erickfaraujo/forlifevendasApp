@@ -83,7 +83,7 @@
         if (!string.IsNullOrEmpty(response.Content.Id))
         {
             await JsRuntime.InvokeVoidAsync("alert", "Pedido cadastrado com sucesso!");
-            NavManager.NavigateTo("/clientes"); /* ????????? */
+            NavManager.NavigateTo($"/detalhesCliente/{idCliente}"); /* ????????? */
         }
     }
 

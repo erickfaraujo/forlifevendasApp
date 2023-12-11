@@ -2,10 +2,10 @@
 
 namespace ForlifeApplication.Web.Responses;
 
-public record GetAllLocaisVendaResponse(
-    [property: JsonPropertyName("locaisVenda")] List<GetLocaisVendaResponse> LocaisVenda);
-
 public record GetLocaisVendaResponse(
+    [property: JsonPropertyName("locaisVenda")] List<GetLocaisVendaBodyResponse> LocaisVenda);
+
+public record GetLocaisVendaBodyResponse(
     [property: JsonPropertyName("idlocal")] Guid IdLocal,
     [property: JsonPropertyName("descricao")] string Descricao,
     [property: JsonPropertyName("endereco")] string Endereco,

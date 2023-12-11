@@ -3,8 +3,8 @@
 namespace ForlifeApplication.Web.Responses;
 
 public record GetClientesResponse(
-    [property: JsonPropertyName("totalClientes")] int TotalClientes,
-    [property: JsonPropertyName("clientesRetornados")] int ClientesRetornados,
+    [property: JsonPropertyName("totalClientes")] int? TotalClientes,
+    [property: JsonPropertyName("clientesRetornados")] int? ClientesRetornados,
     [property: JsonPropertyName("clientes")] List<Cliente> Clientes);
 
 public record Cliente(
