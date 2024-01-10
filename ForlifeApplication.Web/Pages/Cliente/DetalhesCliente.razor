@@ -7,11 +7,10 @@
 <div class="maindiv">
     <div class="buscaClientediv">
         <div class="mb-3">
-            <h1>Detalhes do Cliente</h1>
+            <h1>@cliente.Nome</h1>
         </div>
         
         <div>
-            <h2>@cliente.Nome</h2>
             <dl class="row">
                 <dt class=" col-sm-2">Email</dt>
                 <dd class=" col-sm-9">@cliente.Email</dd>
@@ -38,7 +37,7 @@
             </NavLink>
         </div>
         <div>
-            <button @onclick=NavigateToRegistrar class="btn btn-primary">Registrar Pedido</button>
+            <button @onclick=NavigateToRegistrar class="btn btn-primary">Registrar Venda</button>
         </div>
     </div>
 </div>

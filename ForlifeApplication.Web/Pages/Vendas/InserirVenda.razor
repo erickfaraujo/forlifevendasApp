@@ -29,7 +29,7 @@
             </div>
 
             <div class="input-group mb-2">
-                <span class="input-group-text">Valor Pago </span>
+                <span class="input-group-text">Valor pago </span>
                 <InputText @bind-Value="@inserirVendaDto.ValorPago" class="form-control" />
             </div>
 
@@ -69,9 +69,10 @@
 
     private async void Enviar()
     {
-        pedidoRequest.IdCliente = idCliente;
+        pedidoRequest.IdCliente = inserirVendaDto.IdCliente;
         pedidoRequest.ValorTotal = Convert.ToDecimal(inserirVendaDto.ValorTotal);
         pedidoRequest.ValorPago = Convert.ToDecimal(inserirVendaDto.ValorPago);
+        pedidoRequest.Observacoes = inserirVendaDto.Observacoes;
         var response = await ForLifeVendasApi.PostPedido(pedidoRequest);
 
         if(!response.IsSuccessStatusCode)
@@ -83,7 +84,7 @@
         if (!string.IsNullOrEmpty(response.Content.Id))
         {
             await JsRuntime.InvokeVoidAsync("alert", "Pedido cadastrado com sucesso!");
-            NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
+            NavManager.NavigateTo($"/detalhesCliente/{inserirVendaDto.IdCliente}");
         }
     }
 

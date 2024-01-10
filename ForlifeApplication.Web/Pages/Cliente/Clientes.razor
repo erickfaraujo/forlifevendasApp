@@ -90,6 +90,9 @@
     protected async Task BuscarClientes()
     {
         clientes = null;
+
+        if (localClienteBusca is "Todos") localClienteBusca = null;
+
         var response = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
 
         if (response.IsSuccessStatusCode)
