@@ -2,10 +2,8 @@
 
 namespace ForlifeApplication.Web.Requests;
 
-public class PutClienteRequest
+public class CadastrarClienteDto
 {
-    public string Id { get; set; } = default!;
-
     [Required(ErrorMessage = "Informar o nome")]
     [StringLength(200, MinimumLength = 5, ErrorMessage = "Inserir pelo menos 5 letras no nome")]
     public string Nome { get; set; } = default!;
@@ -19,9 +17,10 @@ public class PutClienteRequest
     public string Email { get; set; } = default!;
 
     [Required(ErrorMessage = "Informar a data de nascimento")]
-    public DateTime DataNascimento { get; set; }
+    [RegularExpression("^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$", ErrorMessage = "Informar uma data no formato dd/mm/aaaa")]
+    public string DataNascimento { get; set; } = default!;
 
-    [Required(ErrorMessage = "Informar o local de venda")]
+    [Required(ErrorMessage = "Informar o local da venda")]
     public string IdlocalVenda { get; set; } = default!;
 
     public string Observacao { get; set; } = default!;

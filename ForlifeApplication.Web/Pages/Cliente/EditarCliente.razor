@@ -1,4 +1,4 @@
-﻿@page "/editarCliente/{idCliente}/{nomeCliente}/{telefoneCliente}/{emailCliente}/{dtNascCliente}/{idLocalCliente}/{localCliente}"
+﻿@page "/editarCliente/{idCliente}/{localCliente}"
 
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
@@ -7,32 +7,34 @@
 <div class="maindiv">
     <h1>Editar Cliente</h1>
     <div class="formEditarCliente">
-        <EditForm Model="atualizaClienteRequest" OnSubmit="Enviar">
+        <EditForm Model="cadastrarClienteDto" OnValidSubmit="Enviar" class="col-6">
             <DataAnnotationsValidator/>
-            <div>
-                <label for="nome">Nome: </label>
-                <InputText id="nome" @bind-Value="nomeCliente"></InputText>
+            <ValidationSummary />
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Nome </span>
+                <InputText @bind-Value="@cadastrarClienteDto.Nome" class="form-control" />
             </div>
 
-            <div>
-                <label for="telefone">Telefone: </label>
-                <InputText id="telefone" @bind-Value="telefoneCliente"></InputText>
+            <div class="input-group mb-2">
+                <span class="input-group-text">Telefone </span>
+                <InputText id="telefone" @bind-Value="@cadastrarClienteDto.Telefone" class="form-control" />
             </div>
 
-            <div>
-                <label for="email">Email: </label>
-                <InputText id="email" @bind-Value="emailCliente"></InputText>
+            <div class="input-group mb-2">
+                <span class="input-group-text">Email </span>
+                <InputText id="email" @bind-Value="@cadastrarClienteDto.Email" class="form-control" />
             </div>
 
-            <div>
-                <label for="dtNasc">Data de Nascimento: </label>
-                <InputText id="dtNasc" @bind-Value="dtNascCliente"></InputText>
+            <div class="input-group mb-2">
+                <span class="input-group-text">Data de Nascimento </span>
+                <InputText id="dtNasc" @bind-Value="cadastrarClienteDto.DataNascimento" class="form-control" />
             </div>
 
-            <div>
-                <label for="local">Local: </label>
-                <InputSelect id="local" @bind-Value="idLocalCliente">
-                    <option value="@idLocalCliente"> @localCliente</option>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Local </span>
+                <InputSelect id="local" @bind-Value="@cadastrarClienteDto.IdlocalVenda" class="form-select">
+                    <option value="@cadastrarClienteDto.IdlocalVenda">@localCliente</option>
                      @foreach(var local in locais.LocaisVenda)
                      {
                          <option value="@local.IdLocal">@local.Descricao</option>
@@ -40,11 +42,16 @@
                 </InputSelect>
             </div>
 
-            <button type="submit">Atualizar</button>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Observações </span>
+                <InputTextArea id="observacoes" @bind-Value="@cadastrarClienteDto.Observacao" placeholder="Insira aqui medidas ou outras informações sobre o cliente" class="form-control" />
+            </div>
 
             <NavLink href="clientes">
-                <button type="button">Cancelar</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
             </NavLink>
+
+            <button type="submit" class="btn btn-primary">Atualizar</button>
     
         </EditForm>
     </div>
@@ -54,42 +61,33 @@
     [Parameter]
     public string idCliente { get; set; }
     [Parameter]
-    public string nomeCliente { get; set; }
-    [Parameter]
-    public string telefoneCliente { get; set; }
-    [Parameter]
-    public string emailCliente { get; set; }
-    [Parameter]
-    public string dtNascCliente { get; set; }
-    [Parameter]
-    public string idLocalCliente { get; set; }
-    [Parameter]
     public string localCliente { get; set; }
 
+    private CadastrarClienteDto cadastrarClienteDto { get; set; } = new();
     private PutClienteRequest atualizaClienteRequest { get; set; } = new();
     private GetLocaisVendaResponse locais;
+    private GetClienteByIdResponse GetClienteByIdResponse { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var response = ForLifeVendasApi.GetLocaisVenda(null, null).Result;
+        await BuscarLocais();
 
-        if (response.IsSuccessStatusCode)
-            locais = response.Content;
-        else
-            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {response.Error.Message}");
+        await BuscarDetalhesCliente();
 
-        var date = DateTime.Parse(dtNascCliente);
-        dtNascCliente = date.ToString("dd/MM/yyyy");
+        var date = DateTime.Parse(GetClienteByIdResponse.cliente.Dtnascimento);
+        cadastrarClienteDto.DataNascimento = date.ToString("dd/MM/yyyy");
     }
 
     private async void Enviar()
     {
         atualizaClienteRequest.Id = idCliente;
-        atualizaClienteRequest.Nome = nomeCliente;
-        atualizaClienteRequest.Telefone = telefoneCliente;
-        atualizaClienteRequest.Email = emailCliente;
-        atualizaClienteRequest.DataNascimento = DateTime.Parse(dtNascCliente);
-        atualizaClienteRequest.IdlocalVenda = idLocalCliente;
+        atualizaClienteRequest.Nome = cadastrarClienteDto.Nome;
+        atualizaClienteRequest.Telefone = cadastrarClienteDto.Telefone;
+        atualizaClienteRequest.Email = cadastrarClienteDto.Email;
+        atualizaClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
+        atualizaClienteRequest.IdlocalVenda = cadastrarClienteDto.IdlocalVenda;
+        atualizaClienteRequest.Observacao = cadastrarClienteDto.Observacao;
+
         var response = await ForLifeVendasApi.PutCliente(atualizaClienteRequest);
 
         if(response.IsSuccessStatusCode)
@@ -104,4 +102,31 @@
         }
     }
 
+    protected async Task BuscarLocais()
+    {
+        var responselocais = ForLifeVendasApi.GetLocaisVenda(null, null).Result;
+
+        if (responselocais.IsSuccessStatusCode)
+            locais = responselocais.Content;
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de locais. Erro: {responselocais.Error.Message}");
+    }
+
+    protected async Task BuscarDetalhesCliente()
+    {
+        var responseCliente = ForLifeVendasApi.GetClienteById(idCliente).Result;
+
+        if (responseCliente.IsSuccessStatusCode)
+        {
+            GetClienteByIdResponse = responseCliente.Content;
+            cadastrarClienteDto.Nome = GetClienteByIdResponse.cliente.Nome;
+            cadastrarClienteDto.Telefone = GetClienteByIdResponse.cliente.Telefone;
+            cadastrarClienteDto.Email = GetClienteByIdResponse.cliente.Email;
+            cadastrarClienteDto.DataNascimento = GetClienteByIdResponse.cliente.Dtnascimento;
+            cadastrarClienteDto.IdlocalVenda = GetClienteByIdResponse.cliente.Idlocal;
+            cadastrarClienteDto.Observacao = GetClienteByIdResponse.cliente.Observacao;
+        }
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do cliente. Erro: {responseCliente.Error.Message}");
+    }
 }

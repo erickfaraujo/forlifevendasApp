@@ -3,23 +3,25 @@
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
 <div class="maindiv">
-    <div class="buscaLocaldiv">
+    <div>
         <h1>Locais de Venda</h1>
         <form>
-            <div>
-                <label for="nomeCliente">Local: </label>
-                <input type="text" @bind="descLocalBusca">
+            <div class="input-group mb-2">
+                <span class="input-group-text">Local </span>
+                <input type="text" @bind="descLocalBusca" class="form-control">
             </div>
-            <div>
-                <label for="telefone">Endereço: </label>
-                <input type="text" @bind="enderecoLocalBusca">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Endereço </span>
+                <input type="text" @bind="enderecoLocalBusca" class="form-control">
             </div>
         </form>
-        <button @onclick="BuscarLocais">Buscar Locais</button>
+        <button @onclick="BuscarLocais" class="btn btn-primary">Buscar Locais</button>
     </div>
-    <NavLink href="cadastroLocal" aria-hidden="true">
-        <button id="novoLocal">Novo Local</button>
-    </NavLink>
+    <div>
+        <NavLink href="cadastroLocal" aria-hidden="true">
+            <button class="btn btn-success">Novo Local</button>
+        </NavLink>
+    </div>
 </div>
 
 <table class="table">

@@ -3,21 +3,23 @@
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
 <div class="maindiv">
-    <div class="buscaVendasdiv">
+    <div class="col-5">
         <h1>Vendas</h1>
         <form>
-            <div class="form-group">
-                <label for="dataInicioPedido">Data Inicio: </label>
-                <input type="text" @bind="dataInicioPedidoBusca">
+            <div class="input-group mb-2">
+                <span class="input-group-text">Data Inicio </span>
+                <input type="text" @bind="dataInicioPedidoBusca" class="form-control">
             </div>
-            <div class="form-group">
-                <label for="dataInicioPedido">Data Final: </label>
-                <input type="text" @bind="dataFinalPedidoBusca">
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Data Final </span>
+                <input type="text" @bind="dataFinalPedidoBusca" class="form-control">
             </div>
-            <div class="form-group">
-                <label for="dropLocais">Local: </label>
-                <select @bind="localClienteBusca">
-                    <option value="">Todos</option>
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Local </span>
+                <select @bind="localClienteBusca" class="form-select">
+                    <option selected>Todos</option>
                     @if (locais is not null)
                     {
                         foreach (var local in locais.LocaisVenda)
@@ -31,16 +33,17 @@
                     }
                 </select>
             </div>
-            <div class="form-group">
-                <label for="dropStatus">Status de Pagamento:</label>
-                <select @bind="statusPagamento">
-                    <option>Ambos</option>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Status de Pagamento </span>
+                <select @bind="statusPagamento" class="form-select">
+                    <option selected>Ambos</option>
                     <option value="PAGO">Pagos</option>
                     <option value="PENDENTE">Pendentes</option>
                 </select>
             </div>
         </form>
-        <button @onclick="BuscarVendas">Buscar Vendas</button>
+        <button @onclick="BuscarVendas" class="btn btn-primary">Buscar Vendas</button>
     </div>
 </div>
 <div>

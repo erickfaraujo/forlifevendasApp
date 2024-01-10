@@ -6,69 +6,97 @@
 @inject NavigationManager NavManager
 <div class="maindiv">
     <div class="buscaClientediv">
-        <h1>Detalhes do Cliente</h1>
-        <h2>@cliente.Nome</h2>
-        <label>Email: @cliente.Email</label>
-        <label>Telefone: @cliente.Telefone</label>
-        <label>Local: @cliente.NomeLocal</label>
+        <div class="mb-3">
+            <h1>Detalhes do Cliente</h1>
+        </div>
+        
+        <div>
+            <h2>@cliente.Nome</h2>
+            <dl class="row">
+                <dt class=" col-sm-2">Email</dt>
+                <dd class=" col-sm-9">@cliente.Email</dd>
+
+                <dt class=" col-sm-2">Telefone</dt>
+                <dd class=" col-sm-9">@cliente.Telefone</dd>
+
+                <dt class=" col-sm-2">Local</dt>
+                <dd class=" col-sm-9">@cliente.NomeLocal</dd>
+
+                <dt class=" col-sm-2">Data de Nascimento</dt>
+                <dd class=" col-sm-9">@dtNasc</dd>
+
+                <dt class=" col-sm-2">Observações</dt>
+                <dd class=" col-sm-9">@cliente.Observacao</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="mb-2">
+            <NavLink href="clientes">
+                <button type="button" class="btn btn-secondary">Voltar</button>
+            </NavLink>
+        </div>
+        <div>
+            <button @onclick=NavigateToRegistrar class="btn btn-primary">Registrar Pedido</button>
+        </div>
     </div>
 </div>
 
-<div>
-    <button @onclick=NavigateToRegistrar>Registrar Pedido</button>
-</div>
-
-<h3>Últimas Compras</h3>
-@if (pedidosPagos)
-{
-    <button @onclick=FiltrarPedidos>Exibir apenas pedidos pendentes</button>
-}
-else
-{
-    <button @onclick=FiltrarPedidos>Exbirir todos os pedidos</button>
-}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Data</th>
-            <th>Valor</th>
-            <th>Valor Pago</th>
-            <th>Status</th>
-            <th>Obervações</th>
-            <th></th>
-        </tr>
-    </thead>
-
-    @if (pedidos == null)
+<div class="mb-3">
+    <h3>Últimas Compras</h3>
+    @if (pedidosPagos)
     {
-        <tr>Cliente não possui pedidos cadatrados</tr>
+        <button @onclick=FiltrarPedidos class="btn btn-secondary btn-sm">Exibir apenas pedidos pendentes</button>
     }
     else
     {
-        <tbody>
-            @foreach (var pedido in pedidos.Pedidos)
-            {
-                <tr>
-                    <td>@pedido.DataPedido.ToShortDateString()</td>
-                    <td>R$@pedido.Valor</td>
-                    <td>R$@pedido.TotalPagamento</td>
-                    <td>@pedido.Status</td>
-                    <td>@pedido.Observacoes</td>
-                    <td>
-                        @if (pedido.Status is "PENDENTE")
-                        {
-                            pedido.SaldoDevedor = (pedido.Valor - pedido.TotalPagamento).ToString();
-                            <a href="registrarPagamento/@idCliente/@pedido.IdPedido/@pedido.SaldoDevedor" aria-hidden="true">
-                                <buttton>Registrar Pagamento</buttton>
-                            </a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
+        <button @onclick=FiltrarPedidos class="btn btn-secondary btn-sm">Exibir todos os pedidos</button>
     }
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Valor</th>
+                <th>Valor Pago</th>
+                <th>Status</th>
+                <th>Obervações</th>
+                <th></th>
+            </tr>
+        </thead>
 
-</table>
+        @if (pedidos == null)
+        {
+            <tr>Cliente não possui pedidos cadatrados</tr>
+        }
+        else
+        {
+            <tbody>
+                @foreach (var pedido in pedidos.Pedidos)
+                {
+                    <tr>
+                        <td>@pedido.DataPedido.ToShortDateString()</td>
+                        <td>R$@pedido.Valor</td>
+                        <td>R$@pedido.TotalPagamento</td>
+                        <td>@pedido.Status</td>
+                        <td>@pedido.Observacoes</td>
+                        <td>
+                            @if (pedido.Status is "PENDENTE")
+                            {
+                                pedido.SaldoDevedor = (pedido.Valor - pedido.TotalPagamento).ToString();
+                                <a href="registrarPagamento/@idCliente/@pedido.IdPedido/@pedido.SaldoDevedor" aria-hidden="true">
+                                    <buttton>Registrar Pagamento</buttton>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+</div>
+
+
 
 @code {
     [Parameter]
@@ -76,13 +104,17 @@ else
     private Cliente cliente;
     private GetPedidosClienteResponse pedidos;
     private bool pedidosPagos = true;
+    private string dtNasc;
 
     protected override async Task OnInitializedAsync()
     {
         var responseCliente = ForLifeVendasApi.GetClienteById(idCliente).Result;
 
         if (responseCliente.IsSuccessStatusCode)
+        {
             cliente = responseCliente.Content.cliente;
+            dtNasc = DateTime.Parse(cliente.Dtnascimento).ToString("dd/MM/yyyy");
+        }
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do cliente. Erro: {responseCliente.Error.Message}");
 

@@ -6,55 +6,59 @@
 
 <div class="maindiv">
     <h1>Cadastrar Cliente</h1>
-    <div class="formCadastroCliente">
-        <EditForm Model="clienteRequest" OnSubmit="Enviar">
-            <DataAnnotationsValidator/>
-            <div>
-                <label for="nome">Nome: </label>
-                <InputText id="nome" @bind-Value="clienteRequest.Nome" />
-                <ValidationMessage For="(() => clienteRequest.Nome)" />
-            </div>
+    <EditForm Model="@cadastrarClienteDto" OnValidSubmit="Enviar" class="col-6">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-            <div>
-                <label for="telefone">Telefone: </label>
-                <InputText id="telefone" @bind-Value="clienteRequest.Telefone" />
-            </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Nome </span>
+            <InputText id="nome" @bind-Value="@cadastrarClienteDto.Nome" class="form-control" />
+        </div>
 
-            <div>
-                <label for="email">Email: </label>
-                <InputText id="email" @bind-Value="clienteRequest.Email" />
-            </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Telefone </span>
+            <InputText id="telefone" @bind-Value="@cadastrarClienteDto.Telefone" class="form-control" />
+        </div>
 
-            <div>
-                <label for="dtNascimento">Data de Nascimento: </label>
-                <InputText id="dtNascimento" @bind-Value="dateNasc" />
-            </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Email </span>
+            <InputText id="email" @bind-Value="@cadastrarClienteDto.Email" class="form-control" />
+        </div>
 
-            <div>
-                <label for="local">Local: </label>
-                <InputSelect id="local" @bind-Value="clienteRequest.IdlocalVenda">
-                    <option value=""> Selecione um local</option>
-                    @foreach(var local in locais.LocaisVenda)
-                    {
-                        <option value="@local.IdLocal">@local.Descricao</option>
-                    }
-                </InputSelect>
-            </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Data de Nascimento </span>
+            <InputText id="dtNascimento" @bind-Value="@cadastrarClienteDto.DataNascimento" class="form-control" />
+        </div>
 
-            <button type="submit">Cadastrar</button>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Local </span>
+            <InputSelect id="local" @bind-Value="@cadastrarClienteDto.IdlocalVenda" class="form-select">
+                <option selected>Selecione um local</option>
+                @foreach(var local in locais.LocaisVenda)
+                {
+                    <option value="@local.IdLocal">@local.Descricao</option>
+                }
+            </InputSelect>
+        </div>
 
+        <div class="input-group mb-3">
+            <span class="input-group-text">Observações </span>
+            <InputTextArea id="observacoes" @bind-Value="@cadastrarClienteDto.Observacao" placeholder="Insira aqui medidas ou outras informações sobre o cliente" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
             <NavLink href="clientes">
-                <button type="button">Cancelar</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
             </NavLink>
-    
-        </EditForm>
-    </div>
+        </div>
+    </EditForm>
 </div>
 
 @code {
-    private PostClienteRequest clienteRequest { get; set; } = new();
+    private CadastrarClienteDto cadastrarClienteDto { get; set; } = new();
+    private PostClienteRequest postClienteRequest { get; set; } = new();
     private GetLocaisVendaResponse locais;
-    private string dateNasc { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,8 +72,14 @@
 
     private async Task Enviar()
     {
-        clienteRequest.DataNascimento = DateTime.Parse(dateNasc);
-        var response = await ForLifeVendasApi.PostCliente(clienteRequest);
+        postClienteRequest.Nome = cadastrarClienteDto.Nome;
+        postClienteRequest.Telefone = cadastrarClienteDto.Telefone;
+        postClienteRequest.Email = cadastrarClienteDto.Email;
+        postClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
+        postClienteRequest.Observacao = cadastrarClienteDto.Observacao;
+        postClienteRequest.IdlocalVenda = cadastrarClienteDto.IdlocalVenda;
+
+        var response = await ForLifeVendasApi.PostCliente(postClienteRequest);
 
         if (!response.IsSuccessStatusCode)
         {

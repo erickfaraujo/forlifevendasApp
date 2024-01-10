@@ -2,9 +2,9 @@
 
 public class PutPagamentoPedidoRequest
 {
-    public string IdPedido {get; set; }
+    public string IdPedido { get; set; }
 
-    public DateTime Data {get; set; }
+    public DateTime Data { get; set; }
 
-    public decimal Valor { get; set;  }
+    public decimal Valor { get; set; }
 }

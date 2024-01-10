@@ -15,4 +15,5 @@ public record Cliente(
     [property: JsonPropertyName("email")] string Email,
     [property: JsonPropertyName("dtnascimento")] string Dtnascimento,
     [property: JsonPropertyName("idlocal")] string Idlocal,
-    [property: JsonPropertyName("nomeLocal")] string NomeLocal);
+    [property: JsonPropertyName("nomeLocal")] string NomeLocal,
+    [property: JsonPropertyName("observacao")] string Observacao);

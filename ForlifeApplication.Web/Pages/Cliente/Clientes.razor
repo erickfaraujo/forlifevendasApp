@@ -3,21 +3,23 @@
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
 <div class="maindiv">
-    <div class="buscaClientediv">
+    <div class ="col-5">
         <h1>Clientes</h1>
         <form>
-            <div>
-                <label for="nomeCliente">Nome: </label>
-                <input type="text" @bind="nomeClienteBusca">
+            <div class="input-group mb-2">
+                <span class="input-group-text">Nome </span>
+                <input type="text" @bind="nomeClienteBusca" class="form-control">
             </div>
-            <div>
-                <label for="telefone">Telefone: </label>
-                <input type="text" @bind="telefoneClienteBusca">
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Telefone </span>
+                <input type="text" @bind="telefoneClienteBusca" class="form-control">
             </div>
-            <div>
-                <label for="dropLocais">Local: </label>
-                <select @bind="localClienteBusca">
-                    <option value="">Todos</option>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Local </span>
+                <select @bind="localClienteBusca" class="form-select">
+                    <option selected>Todos</option>
                     @if (locais is not null)
                     {
                         foreach (var local in locais.LocaisVenda)
@@ -32,12 +34,17 @@
                 </select>
             </div>
         </form>
-        <button @onclick="BuscarClientes">Buscar Clientes</button>
+        <button @onclick="BuscarClientes" class="btn btn-primary">Buscar Clientes</button>
     </div>
-    <NavLink href="cadastroCliente" aria-hidden="true">
-        <button id="novoCliente">Novo Cliente</button>
-    </NavLink>
+
+    <div>
+        <NavLink href="cadastroCliente" aria-hidden="true">
+            <button  class ="btn btn-success">Novo Cliente</button>
+        </NavLink>
+    </div>
 </div>
+
+
 <div>
     @if (clientes == null)
     {

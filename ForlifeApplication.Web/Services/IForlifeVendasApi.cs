@@ -30,6 +30,9 @@ public interface IForlifeVendasApi
     [Get("/Pedidos")]
     Task<ApiResponse<GetPedidosClienteResponse>> GetPedidos(GetPedidosRequest request);
 
+    [Get("/Pedidos/{idPedido}")]
+    Task<ApiResponse<GetDetalhesPedidoResponse>> GetDetalhesPedido(string idPedido);
+
     [Get("/Pedidos/cliente/{idCliente}")]
     Task<ApiResponse<GetPedidosClienteResponse>> GetPedidosCliente(string idCliente, bool pagos);
 

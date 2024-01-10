@@ -5,28 +5,31 @@
 @inject NavigationManager NavManager
 
 <div class="maindiv">
-    <h1>Cadastrar novo local</h1>
     <div class="cadastrarLocaisdiv">
-        <EditForm Model="localRequest" OnSubmit="CadastrarLocaVenda">
+        <h1>Cadastrar novo local</h1>
+        <EditForm Model="localRequest" OnValidSubmit="CadastrarLocaVenda">
             <DataAnnotationsValidator />
-            <div>
-                <label for="nomeCliente">Local: </label>
-                <InputText id="descricao" @bind-Value="localRequest.Descricao" />
+            <ValidationSummary />
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Local </span>
+                <InputText id="descricao" @bind-Value="localRequest.Descricao" class="form-control"/>
             </div>
 
-            <div>
-                <label for="telefone">Endereço: </label>
-                <InputText id="endereco" @bind-Value="localRequest.Endereco" />
-            </div>
-            <div>
-                <label for="telefone">Referência: </label>
-                <InputText id="referencia" @bind-Value="localRequest.Referencia" />
+            <div class="input-group mb-2">
+                <span class="input-group-text">Endereço </span>
+                <InputText id="endereco" @bind-Value="localRequest.Endereco" class="form-control" />
             </div>
 
-            <button type="submit">Cadastrar</button>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Referência </span>
+                <InputText id="referencia" @bind-Value="localRequest.Referencia" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
 
             <NavLink href="locais">
-                <button type="button">Cancelar</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
             </NavLink>
 
         </EditForm>

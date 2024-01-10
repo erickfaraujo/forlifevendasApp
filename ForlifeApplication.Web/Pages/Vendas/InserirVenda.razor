@@ -6,13 +6,15 @@
 @inject NavigationManager NavManager
 
 <div class="maindiv">
-    <h1>Inserir Venda</h1>
     <div class="formCadastroVenda">
-        <EditForm Model="pedidoRequest" OnSubmit="Enviar">
+        <h1>Inserir Venda</h1>
+        <EditForm Model="inserirVendaDto" OnValidSubmit="Enviar" class="col-6">
             <DataAnnotationsValidator/>
-            <div>
-                <label for="cliente">Cliente: </label>
-                <InputSelect id="cliente" @bind-Value="pedidoRequest.IdCliente">
+            <ValidationSummary />
+
+            <div class="input-group mb-2">
+                <span class="input-group-text">Cliente </span>
+                <InputSelect @bind-Value="inserirVendaDto.IdCliente" class="form-select">
                     <option value="@idCliente">@nomeCliente</option>
                     @foreach(var cliente in clientes.Clientes)
                     {
@@ -21,25 +23,25 @@
                 </InputSelect>
             </div>
 
-             <div>
-                <label for="vlPedido">Valor do pedido: </label>
-                <InputNumber id="vlPedido" @bind-Value="pedidoRequest.ValorTotal" @bind-Value:format="F2" />
+            <div class ="input-group mb-2">
+                <span class="input-group-text">Valor do pedido </span>
+                <InputText @bind-Value="@inserirVendaDto.ValorTotal" @bind-Value:format="F2" class="form-control" />
             </div>
 
-            <div>
-                <label for="vlPago">Valor Pago: </label>
-                <InputNumber id="vlPago" @bind-Value="pedidoRequest.ValorPago" />
+            <div class="input-group mb-2">
+                <span class="input-group-text">Valor Pago </span>
+                <InputText @bind-Value="@inserirVendaDto.ValorPago" class="form-control" />
             </div>
 
-            <div>
-                <label for="vlPago">Observações: </label>
-                <InputTextArea id="obs" @bind-Value="pedidoRequest.Observacoes" />
+            <div class="input-group mb-3">
+                <span class="input-group-text">Observações </span>
+                <InputTextArea @bind-Value="inserirVendaDto.Observacoes" class="form-control" />
             </div>
 
-            <button type="submit">Inserir Venda</button>
+            <button type="submit" class="btn btn-primary">Inserir Venda</button>
 
             <NavLink href="">
-                <button type="button">Cancelar</button>
+                <button type="button" class="btn btn-secondary">Cancelar</button>
             </NavLink>
     
         </EditForm>
@@ -51,16 +53,12 @@
     public string? idCliente { get; set; }
     [Parameter]
     public string? nomeCliente { get; set; }
-
+    private InserirVendaDto inserirVendaDto { get; set; } = new();
     private PostPedidoRequest pedidoRequest { get; set; } = new();
-    private decimal numberVariable { get; set; }
     private GetClientesResponse clientes;
 
     protected override async Task OnInitializedAsync()
     {
-        // idCliente = "";
-        // nomeCliente = "Selecione um cliente";
-
         var response = ForLifeVendasApi.GetClientes(null, null, null).Result;
 
         if (response.IsSuccessStatusCode)
@@ -72,6 +70,8 @@
     private async void Enviar()
     {
         pedidoRequest.IdCliente = idCliente;
+        pedidoRequest.ValorTotal = Convert.ToDecimal(inserirVendaDto.ValorTotal);
+        pedidoRequest.ValorPago = Convert.ToDecimal(inserirVendaDto.ValorPago);
         var response = await ForLifeVendasApi.PostPedido(pedidoRequest);
 
         if(!response.IsSuccessStatusCode)
@@ -83,7 +83,7 @@
         if (!string.IsNullOrEmpty(response.Content.Id))
         {
             await JsRuntime.InvokeVoidAsync("alert", "Pedido cadastrado com sucesso!");
-            NavManager.NavigateTo($"/detalhesCliente/{idCliente}"); /* ????????? */
+            NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
         }
     }
 

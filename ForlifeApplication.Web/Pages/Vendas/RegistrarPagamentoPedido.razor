@@ -7,25 +7,26 @@
 
 <div class="maindiv">
     <h1>Registrar Pagamento</h1>
-    <div>
+    <div class="mb-3">
         <label>Saldo devedor: R$ @saldoDevedor</label>
     </div>
     <div class="formRegistroPagamento">
-        <EditForm Model="pagamentoRequest" OnSubmit="Enviar">          
-            <div>
-                <label for="dtPagamento">Data do Pagamento: </label>
-                <InputText id="dtPagamento" @bind-Value="dateNasc"/>
-            </div>
-            
-             <div>
-                <label for="vlPedido">Valor do Pagamento: </label>
-                <InputNumber id="vlPedido" @bind-Value="pagamentoRequest.Valor" @bind-Value:format="F2" />
+        <EditForm Model="registrarPagamentoDto" OnValidSubmit="Enviar" class="col-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="input-group mb-2">
+                <span class="input-group-text">Data do Pagamento </span>
+                <InputText @bind-Value="registrarPagamentoDto.DataPagamento" class="form-control" />
             </div>
 
-            <button type="submit">Registrar Pagamento</button>
+            <div class ="input-group mb-3">
+                <span class="input-group-text">Valor do Pagamento </span>
+                <InputText @bind-Value="registrarPagamentoDto.ValorPagamento" class="form-control" />
+            </div>
 
             <div>
-                <button type="button" @onclick="NavigateToDetalhesCliente">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Registrar Pagamento</button>
+                <button type="button" class="btn btn-secondary" @onclick="NavigateToDetalhesCliente">Cancelar</button>
             </div>
     
         </EditForm>
@@ -39,8 +40,9 @@
     public string idCliente { get; set; }
     [Parameter]
     public string saldoDevedor { get; set; }
-    private string dateNasc { get; set; } = DateTime.Now.ToShortDateString();
-
+    
+    private GetDetalhesPedidoResponse getDetalhesPedidoResponse { get; set; }
+    private RegistrarPagamentoDto registrarPagamentoDto { get; set; } = new();
     private PutPagamentoPedidoRequest pagamentoRequest { get; set; } = new();
 
     private async void Enviar()
@@ -52,7 +54,8 @@
         }
 
         pagamentoRequest.IdPedido = idPedido;
-        pagamentoRequest.Data = DateTime.Parse(dateNasc);
+        pagamentoRequest.Valor = Convert.ToDecimal(registrarPagamentoDto.ValorPagamento);
+        pagamentoRequest.Data = DateTime.Parse(registrarPagamentoDto.DataPagamento);
         var response = await ForLifeVendasApi.PutPagamentoPedido(pagamentoRequest);
 
         if(!response.IsSuccessStatusCode)
