@@ -46,23 +46,31 @@
         <button @onclick="BuscarVendas" class="btn btn-primary">Buscar Vendas</button>
     </div>
 </div>
-<div>
-    @if (vendas == null)
-    {
-        <p>@msgTable</p>
-    }
-    else
-    {
-        @if (vendas.Pedidos is not null)
-        {
-            <ExibirVendas Vendas="@vendas" />
-        }
-        else
+
+@if (loading)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div>
+        @if (vendas == null)
         {
             <p>@msgTable</p>
         }
-    }
-</div>
+        else
+        {
+            @if (vendas.Pedidos is not null)
+            {
+                <ExibirVendas Vendas="@vendas" />
+            }
+            else
+            {
+                <p>@msgTable</p>
+            }
+        }
+    </div>
+}
 
 @code {
     private GetPedidosClienteResponse vendas;
@@ -72,11 +80,10 @@
     public string statusPagamento { get; set; }
     public string msgTable { get; set; } = "Utilize os campos de pesquisa acima";
     private GetLocaisVendaResponse locais;
+    private bool loading { get; set; }
 
     protected override async Task OnInitializedAsync()
-    {
-        await BuscarLocais();
-    }
+        => await BuscarLocais();
 
     protected async Task BuscarLocais()
     {
@@ -90,10 +97,14 @@
 
     protected async Task BuscarVendas()
     {
+        loading = true;
         vendas = null;
         statusPagamento = statusPagamento is "Ambos" ? null : statusPagamento;
+
         var request = new GetPedidosRequest(dataInicioPedidoBusca, dataFinalPedidoBusca, statusPagamento, localClienteBusca);
         var response = await ForLifeVendasApi.GetPedidos(request);
+
+        loading = false;
 
         if (response.IsSuccessStatusCode)
             vendas = response.Content;

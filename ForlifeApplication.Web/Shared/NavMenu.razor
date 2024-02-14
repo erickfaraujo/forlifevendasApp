@@ -63,12 +63,17 @@
             }
         </div>
     </nav>
+    <div class="navbar-footer">
+        <p>Versão @version</p>
+    </div>
+    
 </div>
 
 @code {
     private bool collapseNavMenu = true;
     private bool collapseSubMenuLocais;
     private bool collapseSubMenuClientes;
+    private string version { get; } = AppInfo.Version.ToString();
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

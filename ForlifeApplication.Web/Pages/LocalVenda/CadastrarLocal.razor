@@ -5,7 +5,7 @@
 @inject NavigationManager NavManager
 
 <div class="maindiv">
-    <div class="cadastrarLocaisdiv">
+    <div class="content">
         <h1>Cadastrar novo local</h1>
         <EditForm Model="localRequest" OnValidSubmit="CadastrarLocaVenda">
             <DataAnnotationsValidator />
@@ -34,14 +34,25 @@
 
         </EditForm>
     </div>
+
+    @if (loading)
+    {
+        <div class="spinner"></div>
+    }
+
 </div>
 
 @code {
     public PostLocalRequest localRequest { get; set; } = new();
+    private bool loading { get; set; }
 
     protected async Task CadastrarLocaVenda()
     {
+        loading = true;
+
         var response = await ForLifeVendasApi.PostLocal(localRequest);
+
+        loading = false;
 
         if (!response.IsSuccessStatusCode)
         {
@@ -50,5 +61,7 @@
         }
 
         await JsRuntime.InvokeVoidAsync("alert", "Local cadastrado com sucesso!");
+        NavManager.NavigateTo("/locais");
+
     }
 }

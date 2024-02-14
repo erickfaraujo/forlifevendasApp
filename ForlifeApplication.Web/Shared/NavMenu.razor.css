@@ -60,3 +60,11 @@
         display: block;
     }
 }
+
+.navbar-footer {
+    font-size: 0.7rem;
+    color: white;
+    padding: 0.2rem;
+    position: absolute;
+    bottom: 0;
+}

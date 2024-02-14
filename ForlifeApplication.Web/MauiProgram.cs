@@ -9,7 +9,6 @@ namespace ForlifeApp.Web
     {
         public static MauiApp CreateMauiApp()
         {
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NHaF1cWWhIfEx3THxbf1xzZFRHal5TTnJXUiweQnxTdEZiW35ccXVXRGRUU0x/WQ==");
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -28,8 +27,6 @@ namespace ForlifeApp.Web
             builder.Services
             .AddRefitClient<IForlifeVendasApi>()
             .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://cjqhqfldai7t4ilg332oggchdu0mpaca.lambda-url.us-east-1.on.aws/v1"));
-
-            //builder.Services.AddSyncfusionBlazor();
 
             return builder.Build();
         }

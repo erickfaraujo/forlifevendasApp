@@ -55,6 +55,12 @@
     
         </EditForm>
     </div>
+
+    @if (loading)
+    {
+        <div class="spinner"></div>
+    }
+
 </div>
 
 @code {
@@ -67,26 +73,28 @@
     private PutClienteRequest atualizaClienteRequest { get; set; } = new();
     private GetLocaisVendaResponse locais;
     private GetClienteByIdResponse GetClienteByIdResponse { get; set; }
+    private bool loading { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await BuscarLocais();
 
         await BuscarDetalhesCliente();
-
-        var date = DateTime.Parse(GetClienteByIdResponse.cliente.Dtnascimento);
-        cadastrarClienteDto.DataNascimento = date.ToString("dd/MM/yyyy");
     }
 
     private async void Enviar()
     {
+        loading = true;
+
         atualizaClienteRequest.Id = idCliente;
         atualizaClienteRequest.Nome = cadastrarClienteDto.Nome;
         atualizaClienteRequest.Telefone = cadastrarClienteDto.Telefone;
         atualizaClienteRequest.Email = cadastrarClienteDto.Email;
-        atualizaClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
         atualizaClienteRequest.IdlocalVenda = cadastrarClienteDto.IdlocalVenda;
         atualizaClienteRequest.Observacao = cadastrarClienteDto.Observacao;
+
+        if (cadastrarClienteDto.DataNascimento is not null)
+            atualizaClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
 
         var response = await ForLifeVendasApi.PutCliente(atualizaClienteRequest);
 
@@ -100,6 +108,8 @@
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao editar cliente. Erro: {response.Error.Message}");
             return;
         }
+
+        loading = false;
     }
 
     protected async Task BuscarLocais()
@@ -122,9 +132,11 @@
             cadastrarClienteDto.Nome = GetClienteByIdResponse.cliente.Nome;
             cadastrarClienteDto.Telefone = GetClienteByIdResponse.cliente.Telefone;
             cadastrarClienteDto.Email = GetClienteByIdResponse.cliente.Email;
-            cadastrarClienteDto.DataNascimento = GetClienteByIdResponse.cliente.Dtnascimento;
             cadastrarClienteDto.IdlocalVenda = GetClienteByIdResponse.cliente.Idlocal;
             cadastrarClienteDto.Observacao = GetClienteByIdResponse.cliente.Observacao;
+            cadastrarClienteDto.DataNascimento = GetClienteByIdResponse.cliente.Dtnascimento is not null
+                                                ? DateTime.Parse(GetClienteByIdResponse.cliente.Dtnascimento).ToShortDateString()
+                                                : null;
         }
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do cliente. Erro: {responseCliente.Error.Message}");

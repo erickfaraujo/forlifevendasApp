@@ -10,7 +10,7 @@
     <div class="mb-3">
         <label>Saldo devedor: R$ @saldoDevedor</label>
     </div>
-    <div class="formRegistroPagamento">
+    <div>
         <EditForm Model="registrarPagamentoDto" OnValidSubmit="Enviar" class="col-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
@@ -24,13 +24,22 @@
                 <InputText @bind-Value="registrarPagamentoDto.ValorPagamento" class="form-control" />
             </div>
 
-            <div>
-                <button type="submit" class="btn btn-primary">Registrar Pagamento</button>
-                <button type="button" class="btn btn-secondary" @onclick="NavigateToDetalhesCliente">Cancelar</button>
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-secondary" @onclick="NavigateToDetalhesVenda">Voltar para tela da venda</button>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Registrar Pagamento</button>
+                </div>
             </div>
-    
         </EditForm>
     </div>
+
+    @if (loading)
+    {
+        <div class="spinner"></div>
+    }
+
 </div>
 
 @code {
@@ -40,15 +49,19 @@
     public string idCliente { get; set; }
     [Parameter]
     public string saldoDevedor { get; set; }
-    
+
     private GetDetalhesPedidoResponse getDetalhesPedidoResponse { get; set; }
     private RegistrarPagamentoDto registrarPagamentoDto { get; set; } = new();
     private PutPagamentoPedidoRequest pagamentoRequest { get; set; } = new();
+    private bool loading { get; set; }
 
     private async void Enviar()
     {
+        loading = true;
+
         if (pagamentoRequest.Valor > Convert.ToDecimal(saldoDevedor))
         {
+            loading = false;
             await JsRuntime.InvokeVoidAsync("alert", $"Insira um valor de até R$ {saldoDevedor}");
             return;
         }
@@ -58,6 +71,8 @@
         pagamentoRequest.Data = DateTime.Parse(registrarPagamentoDto.DataPagamento);
         var response = await ForLifeVendasApi.PutPagamentoPedido(pagamentoRequest);
 
+        loading = false;
+
         if(!response.IsSuccessStatusCode)
         {
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao registrar pagamento para a venda. Erro: {response.Error.Message}");
@@ -65,9 +80,9 @@
         }
 
         await JsRuntime.InvokeVoidAsync("alert", "Pedido atualizado com sucesso!");
-        NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
+        NavigateToDetalhesVenda();
     }
 
-    protected void NavigateToDetalhesCliente()
-        => NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
+    protected void NavigateToDetalhesVenda()
+        => NavManager.NavigateTo($"/detalhesVenda/{idPedido}");
 }

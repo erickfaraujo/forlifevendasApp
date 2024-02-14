@@ -14,15 +14,15 @@ public class PostPedidoRequest
     [Required(ErrorMessage = "Cliente não informado")]
     public string IdCliente { get; set; }
 
-    [Required(ErrorMessage = "Inserir códigos de produtos e quantidades")]
     public string Observacoes { get; set; }
-}
 
+    [Required(ErrorMessage = "Inserir códigos de produtos e quantidades")]
+    public string CodProdutos { get; set; }
+}
 
 public class Item
 {
     public int CodigoProduto { get; set; }
 
     public int Quantidade { get; set; }
-
 }

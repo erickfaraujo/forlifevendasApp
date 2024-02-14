@@ -12,16 +12,12 @@
             <DataAnnotationsValidator/>
             <ValidationSummary />
 
-            <div class="input-group mb-2">
-                <span class="input-group-text">Cliente </span>
-                <InputSelect @bind-Value="inserirVendaDto.IdCliente" class="form-select">
-                    <option value="@idCliente">@nomeCliente</option>
-                    @foreach(var cliente in clientes.Clientes)
-                    {
-                        <option value="@cliente.Pk">@cliente.Nome</option>
-                    }
-                </InputSelect>
-            </div>
+            <fieldset disabled>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Cliente </span>
+                    <input type="text" class="form-control" placeholder="@nomeCliente"/>
+                </div>
+            </fieldset>
 
             <div class ="input-group mb-2">
                 <span class="input-group-text">Valor do pedido </span>
@@ -34,46 +30,52 @@
             </div>
 
             <div class="input-group mb-3">
+                <span class="input-group-text">Códigos de Produtos </span>
+                <InputTextArea @bind-Value="inserirVendaDto.CodProdutos" class="form-control" />
+            </div>
+
+            <div class="input-group mb-3">
                 <span class="input-group-text">Observações </span>
                 <InputTextArea @bind-Value="inserirVendaDto.Observacoes" class="form-control" />
             </div>
 
             <button type="submit" class="btn btn-primary">Inserir Venda</button>
 
-            <NavLink href="">
-                <button type="button" class="btn btn-secondary">Cancelar</button>
-            </NavLink>
+            <button type="button" @onclick=NavigateToDetalhesCliente class="btn btn-secondary">Cancelar</button>
     
         </EditForm>
     </div>
+
+    @if (loading)
+    {
+        <div class="spinner"></div>
+    }
+
 </div>
 
 @code {
     [Parameter]
-    public string? idCliente { get; set; }
+    public string idCliente { get; set; }
     [Parameter]
-    public string? nomeCliente { get; set; }
+    public string nomeCliente { get; set; }
+
     private InserirVendaDto inserirVendaDto { get; set; } = new();
     private PostPedidoRequest pedidoRequest { get; set; } = new();
-    private GetClientesResponse clientes;
+    private bool loading { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        var response = ForLifeVendasApi.GetClientes(null, null, null).Result;
-
-        if (response.IsSuccessStatusCode)
-            clientes = response.Content;
-        else
-            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar lista de clientes. Erro: {response.Error.Message}");
-    }
 
     private async void Enviar()
     {
-        pedidoRequest.IdCliente = inserirVendaDto.IdCliente;
+        loading = true;
+        pedidoRequest.IdCliente = idCliente;
         pedidoRequest.ValorTotal = Convert.ToDecimal(inserirVendaDto.ValorTotal);
-        pedidoRequest.ValorPago = Convert.ToDecimal(inserirVendaDto.ValorPago);
+        pedidoRequest.ValorPago = inserirVendaDto.ValorPago is null ? 0 : Convert.ToDecimal(inserirVendaDto.ValorPago);
         pedidoRequest.Observacoes = inserirVendaDto.Observacoes;
+        pedidoRequest.CodProdutos = inserirVendaDto.CodProdutos;
+
         var response = await ForLifeVendasApi.PostPedido(pedidoRequest);
+
+        loading = false;
 
         if(!response.IsSuccessStatusCode)
         {
@@ -84,8 +86,10 @@
         if (!string.IsNullOrEmpty(response.Content.Id))
         {
             await JsRuntime.InvokeVoidAsync("alert", "Pedido cadastrado com sucesso!");
-            NavManager.NavigateTo($"/detalhesCliente/{inserirVendaDto.IdCliente}");
+            NavManager.NavigateTo($"/detalhesCliente/{idCliente}");
         }
     }
 
+    protected void NavigateToDetalhesCliente()
+        => NavManager.NavigateTo($"/detalhesCLiente/{idCliente}");
 }

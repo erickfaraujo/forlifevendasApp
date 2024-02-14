@@ -1,0 +1,101 @@
+﻿@page "/detalhesVenda/{idVenda}"
+@using System.Net;
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+<div id="topDiv">
+    <div>
+        <div class="mb-3">
+            <h1>Detalhes da Venda</h1>
+        </div>
+        
+        <div>
+            <dl class="row">
+                <dt class=" col-sm-4">Cliente </dt>
+                <dd class=" col-sm-9">@pedido.InfosAdicionais.NomeCliente</dd>
+                <dt class=" col-sm-4">Data da venda </dt>
+                <dd class=" col-sm-9">@pedido.DataPedido.ToShortDateString()</dd>
+                <dt class=" col-sm-4">Valor pedido </dt>
+                <dd class=" col-sm-9">R$ @pedido.Valor</dd>
+                <dt class=" col-sm-4">Valor pago </dt>
+                <dd class=" col-sm-9">R$ @pedido.TotalPagamento</dd>
+                <dt class=" col-sm-4">Valor pendente </dt>
+                <dd class=" col-sm-9">R$ @saldoDevedor</dd>
+                <dt class=" col-sm-9">Produtos</dt>
+                <dd class=" col-sm-9">@pedido.CodProdutos</dd>
+                <dt class=" col-sm-9">Observações</dt>
+                <dd class=" col-sm-9">@pedido.Observacoes</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="mb-2">
+            <button type="button" class="btn btn-primary" @onclick="NavigateToRegistrarPagamento">Registrar Pagamento</button>
+        </div>
+        <div align="right">
+            <button type="button" class="btn btn-secondary" @onclick="NavigateToVendas">Voltar para tela de vendas</button>
+        </div>
+    </div>
+</div>
+
+<div id="bottomDiv">
+    <div class="mb-3 col-4">
+        <h3>Pagamentos</h3>
+        @if (pedido is null || !pedido.Pagamentos.Any())
+        {
+            <p>Nenhum pagamento realizado para essa venda</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Valor Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pagamento in pedido.Pagamentos)
+                    {
+                        <tr>
+                            <td>@pagamento.Data.ToShortDateString()</td>
+                            <td>R$@pagamento.Valor</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string idVenda { get; set; }
+    private Pedido pedido;
+    private decimal saldoDevedor { get; set; }
+
+    protected override async Task OnInitializedAsync()
+        => await GetDetalhesPedido();
+
+    protected async Task GetDetalhesPedido()
+    {
+        var response = ForLifeVendasApi.GetDetalhesPedido(idVenda).Result;
+
+        if (response.IsSuccessStatusCode)
+        {
+            pedido = response.Content.Pedido;
+            saldoDevedor = pedido.Valor - pedido.TotalPagamento;
+        }
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do pedido. Erro: {response.Error.Message}");
+    }
+
+    protected void NavigateToRegistrarPagamento()
+        => NavManager.NavigateTo($"registrarPagamento/{pedido.IdPedido}/{idVenda}/{saldoDevedor}");
+
+    protected void NavigateToVendas()
+    => NavManager.NavigateTo($"vendas");
+
+}

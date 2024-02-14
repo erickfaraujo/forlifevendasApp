@@ -21,6 +21,9 @@ public interface IForlifeVendasApi
     [Put("/Clientes")]
     Task<ApiResponse<object>> PutCliente(PutClienteRequest request);
 
+    [Delete("/Clientes/{idCliente}")]
+    Task<ApiResponse<bool>> DeleteCliente(string IdCliente);
+
     [Get("/LocalVenda")]
     Task<ApiResponse<GetLocaisVendaResponse>> GetLocaisVenda(string descricao, string endereco);
 

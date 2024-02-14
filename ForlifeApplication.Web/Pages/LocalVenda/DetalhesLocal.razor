@@ -10,12 +10,17 @@
         <h1>Detalhes do Local</h1>
         <h2>@nomeLocal</h2>
     </div>
+        <div class="mb-2">
+            <NavLink href="locais">
+                <button type="button" class="btn btn-secondary">Voltar</button>
+            </NavLink>
+        </div>
 </div>
 
 <div>
     @if (clientes == null)
     {
-        <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
+        <p>Nenhum cliente cadastrado nesse local</p>
     }
     else
     {
@@ -28,6 +33,13 @@
             <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
         }
     }
+
+    <div>
+        <NavLink href="cadastroCliente" aria-hidden="true">
+            <button class="btn btn-success">Novo Cliente</button>
+        </NavLink>
+    </div>
+
 </div>
 
 @code {
@@ -38,16 +50,7 @@
     private GetClientesResponse clientes;
 
     protected override async Task OnInitializedAsync()
-    {
-        var responseCliente = ForLifeVendasApi.GetClientesByLocal(idLocal).Result;
-
-        if (responseCliente.IsSuccessStatusCode)
-            clientes = responseCliente.Content;
-        else
-            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do local. Erro: {responseCliente.Error.Message}");
-
-        await GetClientes();
-    }
+        => await GetClientes();
 
     protected async Task GetClientes()
     {
@@ -58,10 +61,10 @@
             if (responseClientes.Content.Clientes is not null)
                 clientes = responseClientes.Content;
             else
-                clientes = null;
+                clientes = default;
         }
         else if(responseClientes.StatusCode is HttpStatusCode.NotFound) 
-            clientes = null;
+            clientes = default;
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar clientes. Erro: {responseClientes.Error.Message}");
     }

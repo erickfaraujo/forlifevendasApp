@@ -44,24 +44,30 @@
     </div>
 </div>
 
-
-<div>
-    @if (clientes == null)
-    {
-        <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
-    }
-    else
-    {
-        @if (clientes.Clientes is not null)
-        {
-            <ExibirClientes Clientes="@clientes" />
-        }
-        else
+@if (clientes is null && !error)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div>
+        @if (clientes == null)
         {
             <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
         }
-    }
-</div>
+        else
+        {
+            @if (clientes.Clientes is not null)
+            {
+                <ExibirClientes Clientes="@clientes" />
+            }
+            else
+            {
+                <p>Nenhum cliente encontrado, utilize o campo de pesquisa acima</p>
+            }
+        }
+    </div>
+}
 
 @code {
     private GetClientesResponse clientes;
@@ -69,13 +75,10 @@
     public string telefoneClienteBusca { get; set; }
     public string localClienteBusca { get; set; }
     private GetLocaisVendaResponse locais;
+    private bool error { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
-    {
-        await BuscarLocais();
-
-        await BuscarClientes();
-    }
+        => await BuscarLocais();
 
     protected async Task BuscarLocais()
     {
@@ -89,6 +92,7 @@
 
     protected async Task BuscarClientes()
     {
+        error = false;
         clientes = null;
 
         if (localClienteBusca is "Todos") localClienteBusca = null;
@@ -96,9 +100,18 @@
         var response = await ForLifeVendasApi.GetClientes(nomeClienteBusca, telefoneClienteBusca, localClienteBusca);
 
         if (response.IsSuccessStatusCode)
+        {
             clientes = response.Content;
+        }
+        else if (response.StatusCode is System.Net.HttpStatusCode.NotFound)
+        {
+            error = true;
+            await JsRuntime.InvokeVoidAsync("alert", "Nenhum cliente encontrado! Refaça a pesquisa ou cadastre o seu primeiro cliente");
+        }
         else
+        {
+            error = true;
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar clientes. Erro: {response.Error.Message}");
+        }
     }
-
 }

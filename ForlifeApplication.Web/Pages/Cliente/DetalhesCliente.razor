@@ -1,5 +1,6 @@
 ﻿@page "/detalhesCliente/{idCliente}"
 @using System.Net;
+@using ForlifeApplication.Web.Pages.Vendas
 
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
@@ -36,14 +37,18 @@
                 <button type="button" class="btn btn-secondary">Voltar</button>
             </NavLink>
         </div>
-        <div>
+        <div class="mb-2">
             <button @onclick=NavigateToRegistrar class="btn btn-primary">Registrar Venda</button>
+        </div>
+        <div class="mb-2">
+            <button @onclick=NavigateToEditarCliente class="btn btn-primary">Editar Cliente</button>
         </div>
     </div>
 </div>
 
 <div class="mb-3">
     <h3>Últimas Compras</h3>
+     
     @if (pedidosPagos)
     {
         <button @onclick=FiltrarPedidos class="btn btn-secondary btn-sm">Exibir apenas pedidos pendentes</button>
@@ -52,6 +57,7 @@
     {
         <button @onclick=FiltrarPedidos class="btn btn-secondary btn-sm">Exibir todos os pedidos</button>
     }
+
     <table class="table">
         <thead>
             <tr>
@@ -59,33 +65,41 @@
                 <th>Valor</th>
                 <th>Valor Pago</th>
                 <th>Status</th>
-                <th>Obervações</th>
-                <th></th>
+                <th><center>Visualizar Venda</center></th>
+                <th><center>Registrar Pagamento</center></th>
             </tr>
         </thead>
 
-        @if (pedidos == null)
+         @if (vendas == null)
         {
             <tr>Cliente não possui pedidos cadatrados</tr>
         }
         else
         {
             <tbody>
-                @foreach (var pedido in pedidos.Pedidos)
+                @foreach (var pedido in vendas.Pedidos)
                 {
                     <tr>
                         <td>@pedido.DataPedido.ToShortDateString()</td>
                         <td>R$@pedido.Valor</td>
                         <td>R$@pedido.TotalPagamento</td>
                         <td>@pedido.Status</td>
-                        <td>@pedido.Observacoes</td>
+                        <td>
+                            <center>
+                                <a href="/detalhesVenda/@pedido.IdPedido">
+                                    <span class="oi oi-eye" id="visualizar" />
+                                </a>
+                            </center>
+                        </td>
                         <td>
                             @if (pedido.Status is "PENDENTE")
                             {
                                 pedido.SaldoDevedor = (pedido.Valor - pedido.TotalPagamento).ToString();
-                                <a href="registrarPagamento/@idCliente/@pedido.IdPedido/@pedido.SaldoDevedor" aria-hidden="true">
-                                    <buttton>Registrar Pagamento</buttton>
-                                </a>
+                                <center>
+                                    <a href="registrarPagamento/@idCliente/@pedido.IdPedido/@pedido.SaldoDevedor" aria-hidden="true">
+                                        <span class="oi oi-dollar" />
+                                    </a>
+                                </center>
                             }
                         </td>
                     </tr>
@@ -95,13 +109,11 @@
     </table>
 </div>
 
-
-
 @code {
     [Parameter]
     public string idCliente { get; set; }
     private Cliente cliente;
-    private GetPedidosClienteResponse pedidos;
+    private GetPedidosClienteResponse vendas;
     private bool pedidosPagos = true;
     private string dtNasc;
 
@@ -112,7 +124,7 @@
         if (responseCliente.IsSuccessStatusCode)
         {
             cliente = responseCliente.Content.cliente;
-            dtNasc = DateTime.Parse(cliente.Dtnascimento).ToString("dd/MM/yyyy");
+            dtNasc = cliente.Dtnascimento is not null ? DateTime.Parse(cliente.Dtnascimento).ToShortDateString() : null;
         }
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do cliente. Erro: {responseCliente.Error.Message}");
@@ -133,16 +145,19 @@
         if (responsePedidos.IsSuccessStatusCode)
         {
             if (responsePedidos.Content.Pedidos is not null)
-                pedidos = responsePedidos.Content;
+                vendas = responsePedidos.Content;
             else
-                pedidos = null;
+                vendas = null;
         }
         else if(responsePedidos.StatusCode is HttpStatusCode.NotFound) 
-            pedidos = null;
+            vendas = null;
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar pedidos do cliente. Erro: {responsePedidos.Error.Message}");
     }
 
     protected void NavigateToRegistrar()
         => NavManager.NavigateTo($"/inserirVenda/{idCliente}/{cliente.Nome}");
+
+    protected void NavigateToEditarCliente()
+        => NavManager.NavigateTo($"/editarCliente/{idCliente}/{cliente.NomeLocal}");
 }

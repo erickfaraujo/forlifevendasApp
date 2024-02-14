@@ -4,8 +4,12 @@
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavManager
 
-<div class="maindiv">
+<div class="head">
     <h1>Cadastrar Cliente</h1>
+</div>
+
+<div class="content">
+    
     <EditForm Model="@cadastrarClienteDto" OnValidSubmit="Enviar" class="col-6">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -55,10 +59,16 @@
     </EditForm>
 </div>
 
+@if(loading)
+{
+    <div class="spinner"></div>
+}
+
 @code {
     private CadastrarClienteDto cadastrarClienteDto { get; set; } = new();
     private PostClienteRequest postClienteRequest { get; set; } = new();
     private GetLocaisVendaResponse locais;
+    private bool loading { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,25 +82,27 @@
 
     private async Task Enviar()
     {
+        loading = true;
         postClienteRequest.Nome = cadastrarClienteDto.Nome;
         postClienteRequest.Telefone = cadastrarClienteDto.Telefone;
         postClienteRequest.Email = cadastrarClienteDto.Email;
-        postClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
         postClienteRequest.Observacao = cadastrarClienteDto.Observacao;
         postClienteRequest.IdlocalVenda = cadastrarClienteDto.IdlocalVenda;
 
+        if (cadastrarClienteDto.DataNascimento is not null)
+            postClienteRequest.DataNascimento = DateTime.Parse(cadastrarClienteDto.DataNascimento);
+
         var response = await ForLifeVendasApi.PostCliente(postClienteRequest);
+
+        loading = false;
 
         if (!response.IsSuccessStatusCode)
         {
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao cadastrar cliente. Erro: {response.Error.Message}");
             return;
         }
-        else
-        {
-            await JsRuntime.InvokeVoidAsync("alert", "Cliente cadastrado com sucesso!");
-            NavManager.NavigateTo("/clientes");
-        }
-    }
 
+        await JsRuntime.InvokeVoidAsync("alert", "Cliente cadastrado com sucesso!");
+        NavManager.NavigateTo("/clientes");
+    }
 }

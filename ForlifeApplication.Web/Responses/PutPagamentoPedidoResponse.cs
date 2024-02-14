@@ -1,4 +1,5 @@
 ﻿using ForlifeApplication.Web.Requests;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ForlifeApplication.Web.Responses;
@@ -40,8 +41,11 @@ public class Pedido
     [JsonPropertyName("InformacoesAdicionais")]
     public InfosAdicionais InfosAdicionais { get; set; } = default!;
 
+    [JsonPropertyName("CodProdutos")]
+    public string CodProdutos { get; set; } = default!;
+
     [JsonIgnore]
-    public string SaldoDevedor { get; set; } = default!;
+    public string SaldoDevedor { get; set; }
 }
 
 public record Pagamento(DateTime Data, decimal Valor);

@@ -37,7 +37,7 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
         <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
         <PackageCertificateThumbprint>2DB8F473FFC57D7B467836B06BFB85CEE94E8E35</PackageCertificateThumbprint>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
@@ -46,6 +46,7 @@
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
         <AppInstallerUri>C:\repo\forlife\front\ForlifeApplication\instalador</AppInstallerUri>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+        <DefaultLanguage>pt-br</DefaultLanguage>
     </PropertyGroup>
 
     <ItemGroup>
@@ -66,10 +67,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\Images\loadingSpinner.gif" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Include="Pages\Index.razor" />
       <None Include="Shared\MainLayout.razor" />
       <None Include="Shared\NavMenu.razor" />
@@ -79,14 +76,10 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Refit" Version="7.0.0" />
         <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
-    </ItemGroup>
+	</ItemGroup>
 
     <ItemGroup>
       <Folder Include="Resources\Images\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <MauiImage Include="wwwroot\loadingspinner.gif" />
     </ItemGroup>
 
 </Project>

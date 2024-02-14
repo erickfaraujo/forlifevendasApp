@@ -1,4 +1,8 @@
-﻿<table class="table">
+﻿@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+@inject IForlifeVendasApi ForlifeVendasApi;
+
+<table class="table">
     <thead>
         <tr>
             <th>Nome</th>
@@ -7,6 +11,7 @@
             <th>Local</th>
             <th></th>
             <th></th>
+            @* <th></th> *@
         </tr>
     </thead>
     @foreach (var cliente in Clientes.Clientes)
@@ -18,18 +23,25 @@
             <td>@cliente.NomeLocal</td>
             <td>
                 <div>
-                    <a href="/editarCliente/@cliente.Pk/@cliente.NomeLocal">
-                        <span class="oi oi-pencil" id="editar" />
+                    <a href="/detalhesCliente/@cliente.Pk">
+                        <span class="oi oi-eye" />
                     </a>
                 </div>
             </td>
             <td>
                 <div>
-                    <a href="/detalhesCliente/@cliente.Pk">
-                        <span class="oi oi-eye" id="visualizar" />
+                    <a href="/editarCliente/@cliente.Pk/@cliente.NomeLocal">
+                        <span class="oi oi-pencil"/>
                     </a>
                 </div>
             </td>
+            @* <td>
+                <div>
+                    <a href="clientes">
+                        <span class="oi oi-trash" @onclick="() => ExcluirCliente(cliente.Nome, cliente.Pk)" />
+                    </a>
+                </div>
+            </td> *@
         </tr>
     }
 </table>
@@ -38,4 +50,16 @@
 
     [Parameter]
     public GetClientesResponse Clientes { get; set; }
+
+    protected async Task ExcluirCliente(string nomeCliente, string idCliente)
+    {
+        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Deseja excluir o cliente {nomeCliente}?");
+
+        if(confirm)
+        {
+            var teste = await ForlifeVendasApi.DeleteCliente(idCliente);
+            if(teste.IsSuccessStatusCode) await JsRuntime.InvokeVoidAsync("alert", "Cliente excluído com sucesso!");
+            NavManager.NavigateTo(NavManager.Uri, true);
+        }       
+    }
 }
