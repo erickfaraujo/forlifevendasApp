@@ -75,7 +75,7 @@
 
         if(!response.IsSuccessStatusCode)
         {
-            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao registrar pagamento para a venda. Erro: {response.Error.Message}");
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao registrar pagamento para a venda. Erro: {response.Error.Content}");
             return;
         }
 

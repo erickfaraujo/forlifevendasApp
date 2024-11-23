@@ -1,5 +1,6 @@
 ﻿@page "/detalhesVenda/{idVenda}"
 @using System.Net;
+@using System.Text.Json
 
 @inject IForlifeVendasApi ForLifeVendasApi
 @inject IJSRuntime JsRuntime
@@ -33,6 +34,9 @@
     <div class="mb-3">
         <div class="mb-2">
             <button type="button" class="btn btn-primary" @onclick="NavigateToRegistrarPagamento">Registrar Pagamento</button>
+        </div>
+        <div class="mb-2">
+            <button type="button" class="btn btn-primary" @onclick="NavigateToEditarVenda">Editar Venda</button>
         </div>
         <div align="right">
             <button type="button" class="btn btn-secondary" @onclick="NavigateToVendas">Voltar para tela de vendas</button>
@@ -87,6 +91,7 @@
         {
             pedido = response.Content.Pedido;
             saldoDevedor = pedido.Valor - pedido.TotalPagamento;
+            await SecureStorage.Default.SetAsync($"{idVenda}", JsonSerializer.Serialize(pedido));
         }
         else
             await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do pedido. Erro: {response.Error.Message}");
@@ -95,7 +100,10 @@
     protected void NavigateToRegistrarPagamento()
         => NavManager.NavigateTo($"registrarPagamento/{pedido.IdPedido}/{idVenda}/{saldoDevedor}");
 
+    protected void NavigateToEditarVenda()
+        => NavManager.NavigateTo($"editarVenda/{idVenda}");
+
     protected void NavigateToVendas()
-    => NavManager.NavigateTo($"vendas");
+        => NavManager.NavigateTo($"vendas");
 
 }

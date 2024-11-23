@@ -24,9 +24,14 @@ namespace ForlifeApp.Web
             builder.Logging.AddDebug();
 #endif
 
+            var endpointServicos = "https://5b2deycovpevjqpdzngtdozt2u0veglf.lambda-url.us-east-1.on.aws/v1";
+            //var endpointServicos = "https://localhost:50001/v1";
+
             builder.Services
             .AddRefitClient<IForlifeVendasApi>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://cjqhqfldai7t4ilg332oggchdu0mpaca.lambda-url.us-east-1.on.aws/v1"));
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(endpointServicos));
+
+            builder.Services.AddScoped<IForlifeService, ForlifeService>();
 
             return builder.Build();
         }

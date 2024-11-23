@@ -11,7 +11,7 @@
             <th>Local</th>
             <th></th>
             <th></th>
-            @* <th></th> *@
+            <th></th>
         </tr>
     </thead>
     @foreach (var cliente in Clientes.Clientes)
@@ -35,13 +35,13 @@
                     </a>
                 </div>
             </td>
-            @* <td>
+            <td>
                 <div>
                     <a href="clientes">
                         <span class="oi oi-trash" @onclick="() => ExcluirCliente(cliente.Nome, cliente.Pk)" />
                     </a>
                 </div>
-            </td> *@
+            </td>
         </tr>
     }
 </table>
@@ -57,9 +57,17 @@
 
         if(confirm)
         {
-            var teste = await ForlifeVendasApi.DeleteCliente(idCliente);
-            if(teste.IsSuccessStatusCode) await JsRuntime.InvokeVoidAsync("alert", "Cliente excluído com sucesso!");
-            NavManager.NavigateTo(NavManager.Uri, true);
-        }       
+            var excluirClienteResponse = await ForlifeVendasApi.DeleteCliente(idCliente);
+
+            if(excluirClienteResponse.IsSuccessStatusCode)
+            {
+                await JsRuntime.InvokeVoidAsync("alert", "Cliente excluído com sucesso!");
+                NavManager.NavigateTo(NavManager.Uri, true);
+            }
+            else
+            {
+                await JsRuntime.InvokeVoidAsync("alert", excluirClienteResponse.Error.Content);
+            }
+        }
     }
 }

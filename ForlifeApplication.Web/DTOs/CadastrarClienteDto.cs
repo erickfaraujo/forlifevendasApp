@@ -5,7 +5,7 @@ namespace ForlifeApplication.Web.Requests;
 public class CadastrarClienteDto
 {
     [Required(ErrorMessage = "Informar o nome")]
-    [StringLength(200, MinimumLength = 5, ErrorMessage = "Inserir pelo menos 5 letras no nome")]
+    [StringLength(200, MinimumLength = 3, ErrorMessage = "Inserir pelo menos 3 letras no nome")]
     public string Nome { get; set; } = default!;
 
     [Required(ErrorMessage = "Informar o telefone")]

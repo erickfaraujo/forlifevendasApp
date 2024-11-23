@@ -42,6 +42,9 @@ public interface IForlifeVendasApi
     [Post("/Pedidos")]
     Task<ApiResponse<PostPedidoResponse>> PostPedido(PostPedidoRequest request);
 
-    [Put("/Pedidos")]
+    [Put("/Pedidos/pagamento")]
     Task<ApiResponse<PutPagamentoPedidoResponse>> PutPagamentoPedido(PutPagamentoPedidoRequest request);
+
+    [Put("/Pedidos")]
+    Task<ApiResponse<PutPedidoResponse>> PutPedido(PutPedidoRequest request);
 }

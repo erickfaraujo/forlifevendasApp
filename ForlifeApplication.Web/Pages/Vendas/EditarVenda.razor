@@ -1,0 +1,96 @@
+﻿@page "/editarVenda/{idVenda}"
+@using System.Globalization;
+
+@inject IForlifeVendasApi ForLifeVendasApi
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="maindiv">
+    <h1>Editar Venda</h1>
+    <div class="formCadastroVenda">
+        <EditForm Model="editarVendaDto" OnValidSubmit="Enviar" class="col-6">
+            <div class ="input-group mb-2">
+                <span class="input-group-text">Valor do pedido </span>
+                <InputText @bind-Value="@editarVendaDto.ValorTotal" @bind-Value:format="F2" class="form-control" />
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Códigos de Produtos </span>
+                <InputTextArea @bind-Value="editarVendaDto.CodProdutos" class="form-control" />
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Observações </span>
+                <InputTextArea @bind-Value="editarVendaDto.Observacoes" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Atualizar Venda</button>
+
+            <button type="button" @onclick=NavigateToDetalhesVenda class="btn btn-secondary">Cancelar</button>
+    
+        </EditForm>
+    </div>
+
+    @if (loading)
+    {
+        <div class="spinner"></div>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public string idVenda { get; set; }
+
+    private EditarVendaDto editarVendaDto { get; set; } = new();
+    private PutPedidoRequest putPedidoRequest { get; set; } = new();
+    private Pedido pedido;
+    private bool loading { get; set; }
+
+    // protected override async Task OnInitializedAsync()
+    //     => var venda = await SecureStorage.Default.GetAsync($"{idVenda}");
+
+    protected override async Task OnInitializedAsync()
+        => await GetDetalhesVenda();
+
+    protected async Task GetDetalhesVenda()
+    {
+        var response = ForLifeVendasApi.GetDetalhesPedido(idVenda).Result;
+
+        if (response.IsSuccessStatusCode)
+        {
+            pedido = response.Content.Pedido;
+            editarVendaDto.ValorTotal = pedido.Valor.ToString();
+            editarVendaDto.CodProdutos = pedido.CodProdutos;
+            editarVendaDto.Observacoes = pedido.Observacoes;
+        }
+        else
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao consultar detalhes do pedido. Erro: {response.Error.Message}");
+    }
+
+    private async void Enviar()
+    {
+        loading = true;
+        putPedidoRequest.IdPedido = idVenda;
+        putPedidoRequest.ValorTotal = Convert.ToDecimal(editarVendaDto.ValorTotal);
+        putPedidoRequest.CodProdutos = editarVendaDto.CodProdutos;
+        putPedidoRequest.Observacoes = editarVendaDto.Observacoes;
+
+        var response = await ForLifeVendasApi.PutPedido(putPedidoRequest);
+
+        loading = false;
+
+        if(!response.IsSuccessStatusCode)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao cadastrar a venda. Erro: {response.Error.Message}");
+            return;
+        }
+
+        await JsRuntime.InvokeVoidAsync("alert", "Venda atualizada com sucesso!");
+
+        NavigateToDetalhesVenda();
+    }
+
+    protected void NavigateToDetalhesVenda()
+        => NavManager.NavigateTo($"/detalhesVenda/{idVenda}");
+}

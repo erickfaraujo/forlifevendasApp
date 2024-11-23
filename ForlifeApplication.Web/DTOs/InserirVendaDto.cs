@@ -14,4 +14,6 @@ public class InserirVendaDto
 
     [Required(ErrorMessage = "Inserir códigos de produtos e quantidades")]
     public string CodProdutos { get; set; }
+
+    public string DataPedido { get; set; } = DateTime.Now.ToString("dd/MM/yyyy");
 }

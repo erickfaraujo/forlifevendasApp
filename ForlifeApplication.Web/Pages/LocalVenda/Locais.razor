@@ -1,6 +1,7 @@
 ﻿@page "/locais"
 
 @inject IForlifeVendasApi ForLifeVendasApi
+@inject IForlifeService ForLifeService
 @inject IJSRuntime JsRuntime
 <div class="maindiv">
     <div>
@@ -50,7 +51,7 @@ else
             <tbody>
                 @if (locais is not null)
                 {
-                    @foreach (var local in locais.LocaisVenda)
+                    @foreach (var local in locais)
                     {
                         <tr>
                             <td>@local.Descricao</td>
@@ -79,32 +80,21 @@ else
 @code {
     public string descLocalBusca { get; set; }
     public string enderecoLocalBusca { get; set; }
-    private GetLocaisVendaResponse locais;
+    private IEnumerable<GetLocaisVendaBodyResponse> locais;
     private bool error { get; set; }
 
     protected override async Task OnInitializedAsync()
         => await BuscarLocais();
 
-
     protected async Task BuscarLocais()
     {
         error = false;
-        locais = null;
-        var response = await ForLifeVendasApi.GetLocaisVenda(descLocalBusca, enderecoLocalBusca);
+        locais = await ForLifeService.BuscarLocais(descLocalBusca, enderecoLocalBusca);
 
-        if (response.IsSuccessStatusCode)
-        {
-            locais = response.Content;
-        }
-        else if (response.StatusCode is System.Net.HttpStatusCode.NotFound)
+        if (!locais.Any())
         {
             error = true;
             await JsRuntime.InvokeVoidAsync("alert", $"Nenhum local encontrado! Refaça a pesquisa ou cadastre o seu primeiro local");
-        }
-        else
-        {
-            error = true;
-            await JsRuntime.InvokeVoidAsync("alert", $"Falha ao lista de locais. Erro: {response.Error.Message}");
         }
     }
 }
